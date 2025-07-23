@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/nav_home"
+        android:title="Inicio"
+        android:icon="@drawable/ic_home" />
+
+    <item
+        android:title="Configuración">
+        <menu>
+            <item
+                android:id="@+id/nav_productos"
+                android:title="Productos"
+                android:icon="@drawable/ic_products" />
+            <item
+                android:id="@+id/nav_ubicaciones"
+                android:title="Ubicaciones"
+                android:icon="@drawable/ic_map" />
+            <item
+                android:id="@+id/nav_inventarios"
+                android:title="Inventarios"
+                android:icon="@drawable/ic_book" />
+            <item
+                android:id="@+id/nav_exportacion"
+                android:title="Exportacion"
+                android:icon="@drawable/ic_export" />
+            <item
+                android:id="@+id/nav_configuracion"
+                android:title="Confirguración"
+                android:icon="@drawable/ic_configuration_manage" />
+
+        </menu>
+    </item>
+
+    <item
+        android:id="@+id/nav_logout"
+        android:title="Cerrar Sesión"
+        android:icon="@drawable/logout_67" />
+</menu>

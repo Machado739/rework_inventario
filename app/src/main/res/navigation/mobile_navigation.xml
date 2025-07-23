@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/nav_home">
+
+    <fragment
+        android:id="@+id/nav_home"
+        android:name="com.example.inventario20.ui.home.HomeFragment"
+        android:label="@string/menu_home"
+        tools:layout="@layout/fragment_home" />
+
+    <fragment
+        android:id="@+id/nav_productos"
+        android:name="com.example.inventario20.ui.productos.ProductosFragment"
+        android:label="@string/menu_productos"
+        tools:layout="@layout/fragment_productos" />
+
+    <fragment
+        android:id="@+id/nav_ubicaciones"
+        android:name="com.example.inventario20.ui.ubicaciones.UbicacionesFragment"
+        android:label="@string/menu_ubicaciones"
+        tools:layout="@layout/fragment_ubicaciones" />
+
+    <fragment
+        android:id="@+id/nav_inventarios"
+        android:name="com.example.inventario20.ui.inventarios.InventariosFragment"
+        android:label="@string/menu_inventarios"
+        tools:layout="@layout/fragment_inventarios" />
+
+    <fragment
+        android:id="@+id/nav_exportacion"
+        android:name="com.example.inventario20.ui.exportacion.ExportacionFragment"
+        android:label="@string/menu_exportacion"
+        tools:layout="@layout/fragment_exportacion" />
+
+    <fragment
+        android:id="@+id/nav_configuracion"
+        android:name="com.example.inventario20.ui.configuracion.ConfiguracionFragment"
+        android:label="@string/menu_configuracion"
+        tools:layout="@layout/fragment_configuracion" />
+
+</navigation>

@@ -28,10 +28,8 @@ class InventariosFragment : Fragment() {
         _binding = FragmentInventariosBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        val textView: TextView = binding.textInventarios
-        inventariosViewModel.text.observe(viewLifecycleOwner) {
-            textView.text = it
-        }
+
+
         return root
     }
 

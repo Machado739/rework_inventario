@@ -28,10 +28,7 @@ class ConfiguracionFragment : Fragment() {
         _binding = FragmentConfiguracionBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        val textView: TextView = binding.textConfiguracion
-        configuracionViewModel.text.observe(viewLifecycleOwner) {
-            textView.text = it
-        }
+
         return root
     }
 

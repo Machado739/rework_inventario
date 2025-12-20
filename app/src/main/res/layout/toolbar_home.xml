@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:layout_gravity="start"
+    android:paddingStart="0dp"
+    android:paddingEnd="0dp">
+
+    <!-- Texto en negritas -->
+    <TextView
+        android:id="@+id/tvRegistro"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Registro: 1"
+        android:textStyle="bold"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        android:ellipsize="end"
+        android:singleLine="true" />
+
+    <!-- Espacio pequeño -->
+    <Space
+        android:layout_width="8dp"
+        android:layout_height="wrap_content" />
+
+    <!-- Texto normal -->
+    <TextView
+        android:id="@+id/tvNombre"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Sin nombre"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        android:ellipsize="end"
+        android:singleLine="true" />
+</LinearLayout>

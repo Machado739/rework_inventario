@@ -28,10 +28,7 @@ class ExportacionFragment : Fragment() {
         _binding = FragmentExportacionBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        val textView: TextView = binding.textExportacion
-        exportacionViewModel.text.observe(viewLifecycleOwner) {
-            textView.text = it
-        }
+
         return root
     }
 

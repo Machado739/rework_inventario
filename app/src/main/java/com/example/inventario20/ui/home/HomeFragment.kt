@@ -21,6 +21,8 @@ import com.example.inventario20.R
 import com.example.inventario20.databinding.FragmentHomeBinding
 import androidx.core.view.isVisible
 import androidx.core.view.isGone
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.navOptions
 
 
 class HomeFragment : Fragment() {
@@ -135,7 +137,7 @@ class HomeFragment : Fragment() {
         val customView = layoutInflater.inflate(R.layout.toolbar_home, null)
         customView.findViewById<TextView>(R.id.tvRegistro).text = "Registro: 1"
         customView.findViewById<TextView>(R.id.tvNombre).text = "Sin nombre"
-
+        abrirLoginSiNecesario()
         // Lo agregamos sin quitar el botón
         activity.supportActionBar?.customView = customView
     }
@@ -157,11 +159,14 @@ class HomeFragment : Fragment() {
     }
 
     private fun abrirLoginSiNecesario(){
-        if(!isInventarioAbierto()){
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.iniciarInventarioFragment, com.example.inventario20.ui.iniciar.Iniciar())
-                .addToBackStack(null)
-                .commit()
+        if (!isInventarioAbierto()) {
+            findNavController().navigate(
+                R.id.nav_iniciar,
+                null,
+                navOptions {
+                    popUpTo(R.id.mobile_navigation) { inclusive = true }
+                }
+            )
         }
     }
 

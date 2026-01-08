@@ -70,8 +70,13 @@ class MainActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
-            R.id.action_settings -> {
+            R.id.exportation_db -> {
                 exportDatabase()
+                true
+            }
+            R.id.clear_DB -> {
+                limpiarBaseDeDatos()
+                Toast.makeText(this, "Base de datos Reiniciada", Toast.LENGTH_SHORT).show()
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -123,6 +128,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun limpiarBaseDeDatos() {
+        val dbHelper = DBHelper(this)
+        dbHelper.limpiarTablas()
+        Toast.makeText(this, "Base de datos limpiada e inicializada", Toast.LENGTH_SHORT).show()
+    }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.

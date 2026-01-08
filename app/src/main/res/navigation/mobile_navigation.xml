@@ -41,4 +41,10 @@
         android:label="@string/menu_configuracion"
         tools:layout="@layout/fragment_configuracion" />
 
+    <fragment
+        android:id="@+id/nav_iniciar"
+        android:name="com.example.inventario20.ui.iniciar.Iniciar"
+        android:label="Iniciar Inventario"
+        tools:layout="@layout/fragment_iniciar" />
+
 </navigation>

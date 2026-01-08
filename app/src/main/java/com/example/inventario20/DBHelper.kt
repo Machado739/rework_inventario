@@ -3,6 +3,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import androidx.core.database.sqlite.transaction
 
 
 class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, "MiBaseDatos.db", null, 2) {
@@ -98,7 +99,7 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
         val nombreInventario: String,
         val fechaCreacion: String,
         val fechaCierre: String?,   // puede ser null si aún no se ha cerrado
-        val activo: Int             // 0 = cerrado, 1 = activo
+        val activo: Int,             // 0 = cerrado, 1 = activo
     )
 
     // Data class para la tabla Registros
@@ -112,33 +113,33 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
         val fecha: String,
         val idubicacion: Int,
         val idproducto: String,
-        val idcliente: Int
+        val idcliente: Int,
     )
 
     // Data class para la tabla Ubicaciones
     data class Ubicacion(
         val idubicacion: Int,
         val ubicacion: String,
-        val idempresas: Int
+        val idempresas: Int,
     )
 
     // Data class para la tabla Empresas
     data class Empresa(
         val idempresas: Int,
-        val empresa: String
+        val empresa: String,
     )
 
     //Data class para la tabla Codigos
     data class Codigo(
         val idproducto: String,
         val producto: String,
-        val medida: String
+        val medida: String,
     )
 
     //Data class para la tabla Cliente
     data class Cliente(
         val idcliente: Int,
-        val cliente: String
+        val cliente: String,
     )
 
 
@@ -618,6 +619,9 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
             Codigo("AVMK0742", "AMARRE P/KALE ORGANICO", "CAJ"),
             Codigo("AVMK0743", "AMARRE P/PEREJIL ITALIANO ORGANICO", "CAJ"),
             Codigo("AVMK0744", "AMARRE P/PEREJIL CHINO ORGANICO", "CAJ"),
+            Codigo("AVMK0745", "AMARRE P/PEREJIL CHINO ORGANICO", "CAJ"),
+            Codigo("AVMK0746", "AMARRE P/PEREJIL CHINO ORGANICO", "CAJ"),
+            Codigo("AVMK0747", "AMARRE P/PEREJIL CHINO ORGANICO", "CAJ"),
             Codigo("BLCF0001", "BOLSA DE PLASTICO 16X20 IMPRESA", "BOL"),
             Codigo("BLCF0002", "BOLSA DE PLASTICO 16X20 ", "BOL"),
             Codigo("BLCF0003", "BOLSA DE PLASTICO 14X16", "BOL"),
@@ -640,10 +644,13 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
             Codigo("CPCF0002", "G.O. REGULAR MEDIANO PLASTICO ", "CAR"),
             Codigo("CPCF0004", "VEGETALES 60 BONCHES PLASTICO ( CILANTRO)", "PZA"),
             Codigo("CPCF0005", "VEGETALES 30 BONCHES PLASTICO (CILANTRO 2.5)", "PZA"),
+            Codigo("CPCF0006", "RABANO 4DZ PLASTICO", "PZA"),
             Codigo("CPMK0675", "RPC #6411", "CAJ"),
             Codigo("CPMK0677", "RPC #6416", "CAJ"),
             Codigo("CPMK0678", "RPC #6419", "CAJ"),
             Codigo("CPMK0679", "RPC #6425", "CAJ"),
+            Codigo("CPMK0680", "RPC # 6423", "PZA"),
+            Codigo("CPMK0681", "CAJA DE PLASTICO MEDIANO MKA ", "PZA"),
             Codigo("CPRR0001", "G.O REGULAR PLASTICO", "PZA"),
             Codigo("CPRR0002", "G.O. SMALL PLASTICO", "PZA"),
             Codigo("CSCF0001", "CANDADOS PARA TROQUE", "PZA"),
@@ -735,7 +742,8 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
             Codigo("TACF0001", "TARIMA DE MADERA", "PZA"),
             Codigo("TAMK0724", "TARIMA DE MADERA #1 40X48", "PZA"),
             Codigo("TAMK0725", "TARIMA CHEP", "PZA"),
-            Codigo("TARF0725", "TARIMA #1", "PZA")
+            Codigo("TARF0725", "TARIMA #1", "PZA"),
+            Codigo("RGMK0757", "REGISTRADOR DIGITAL DE TEMPERATURA", "PZA")
         )
         for (producto in productosIniciales) {
             val values = ContentValues().apply {
@@ -782,16 +790,38 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
     }
 
     /// Metodo para limpiar todas las tablas (para pruebas)
+    // kotlin
     fun limpiarTablas() {
         val db = this.writableDatabase
-        db.execSQL("DELETE FROM Inventarios")
-        db.execSQL("DELETE FROM Registros")
-        db.execSQL("DELETE FROM Registros_Inventario")
-        db.execSQL("DELETE FROM Ubicaciones")
-        db.execSQL("DELETE FROM Empresas")
-        db.execSQL("DELETE FROM Codigos")
-        db.execSQL("DELETE FROM Cliente")
+        db.transaction {
+
+                // Borrar en orden que respete FK
+                execSQL("DELETE FROM Registros_Inventario")
+                execSQL("DELETE FROM Registros")
+                execSQL("DELETE FROM Inventarios")
+                execSQL("DELETE FROM Ubicaciones")
+                execSQL("DELETE FROM Empresas")
+                execSQL("DELETE FROM Codigos")
+                execSQL("DELETE FROM Cliente")
+
+                // Opcional: resetear secuencias si usas AUTOINCREMENT (descomentar si aplica)
+                execSQL("DELETE FROM sqlite_sequence WHERE name='Inventarios'")
+                execSQL("DELETE FROM sqlite_sequence WHERE name='Registros'")
+                execSQL("DELETE FROM sqlite_sequence WHERE name='Ubicaciones'")
+                execSQL("DELETE FROM sqlite_sequence WHERE name='Empresas'")
+                execSQL("DELETE FROM sqlite_sequence WHERE name='Cliente'")
+
+
+                // Volver a insertar datos iniciales usando las funciones que aceptan el objeto db
+                insertarProductosIniciales(this)
+                insertatClientesIniciales(this)
+                insertarEmpresasIniciales(this)
+
+
+
+        }
     }
+
 
     /// Metodo para contar registros en una tabla
     fun contarRegistros(tabla: String): Int {

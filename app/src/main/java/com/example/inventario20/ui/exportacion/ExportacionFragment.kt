@@ -1,5 +1,6 @@
 package com.example.inventario20.ui.exportacion
 
+import android.database.sqlite.SQLiteDatabase
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -7,6 +8,8 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.example.inventario20.DBHelper
+
 import com.example.inventario20.databinding.FragmentExportacionBinding
 
 class ExportacionFragment : Fragment() {
@@ -31,6 +34,8 @@ class ExportacionFragment : Fragment() {
 
         return root
     }
+
+
 
     override fun onDestroyView() {
         super.onDestroyView()

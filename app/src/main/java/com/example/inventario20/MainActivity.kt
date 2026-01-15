@@ -1,7 +1,6 @@
 package com.example.inventario20
 
 import android.content.ContentValues
-import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
@@ -10,20 +9,25 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import com.google.android.material.snackbar.Snackbar
+import androidx.appcompat.app.ActionBarDrawerToggle
 import com.google.android.material.navigation.NavigationView
-import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
-import androidx.navigation.ui.setupWithNavController
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
 import com.example.inventario20.databinding.ActivityMainBinding
 import java.io.FileInputStream
-import androidx.core.content.edit
+import com.example.inventario20.ui.configuracion.ConfiguracionFragment
+import com.example.inventario20.ui.exportacion.ExportacionFragment
+import com.example.inventario20.ui.home.HomeFragment
+import com.example.inventario20.ui.iniciar.IniciarInventarioFragment
+import com.example.inventario20.ui.inventarios.InventariosFragment
+import com.example.inventario20.ui.productos.ProductosFragment
+import com.example.inventario20.ui.ubicaciones.UbicacionesFragment
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(),
+    NavigationView.OnNavigationItemSelectedListener {
+
+    private lateinit var drawerToggle: ActionBarDrawerToggle
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
@@ -36,39 +40,97 @@ class MainActivity : AppCompatActivity() {
 
         setSupportActionBar(binding.appBarMain.toolbar)
 
-        binding.appBarMain.fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null)
-                .setAnchorView(R.id.fab).show()
-        }
-        val drawerLayout: DrawerLayout = binding.drawerLayout
-        val navView: NavigationView = binding.navView
-        val navController = findNavController(R.id.nav_host_fragment_content_main)
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
-        val appBarConfiguration = AppBarConfiguration(
-            setOf(
-                R.id.nav_home,
-                R.id.nav_iniciar_inventario
-            ),
-            findViewById(R.id.drawer_layout)
+        drawerToggle = ActionBarDrawerToggle(
+            this,
+            binding.drawerLayout,
+            binding.appBarMain.toolbar,
+            R.string.navigation_drawer_open,
+            R.string.navigation_drawer_close
         )
 
+        binding.drawerLayout.addDrawerListener(drawerToggle)
+        drawerToggle.syncState()
+
+        // Drawer
+        binding.navView.setNavigationItemSelectedListener(this)
 
 
-        setupActionBarWithNavController(navController, appBarConfiguration)
+        if (savedInstanceState == null) {
+            val dbHelper = DBHelper(this)
+            val inventarioActivoId = dbHelper.obtenerInventarioActivo()
 
-        supportActionBar?.setDisplayShowTitleEnabled(false)
+            val fragmentInicial = if (inventarioActivoId == null) {
+                habilitarDrawer(true) // 👈 ahora SÍ se ve
+                IniciarInventarioFragment()
+            } else {
+                habilitarDrawer(true)
+                HomeFragment()
+            }
 
-        navView.setupWithNavController(navController)
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.nav_host_fragment_content_main, fragmentInicial)
+                .commit()
+        }
 
-        actualizarEstadoDrawer()
     }
+
+    fun habilitarDrawer(habilitar: Boolean) {
+        if (habilitar) {
+            binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+            drawerToggle.isDrawerIndicatorEnabled = true
+        } else {
+            binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+            drawerToggle.isDrawerIndicatorEnabled = false
+        }
+    }
+    override fun onNavigationItemSelected(item: MenuItem): Boolean {
+
+        val dbHelper = DBHelper(this)
+        val inventarioActivoId = dbHelper.obtenerInventarioActivo()
+
+        val fragment = when (item.itemId) {
+
+            R.id.nav_home -> {
+                if (inventarioActivoId == null) {
+                    IniciarInventarioFragment()
+                } else {
+                    HomeFragment()
+                }
+            }
+
+            R.id.nav_iniciar_inventario -> IniciarInventarioFragment()
+
+            R.id.nav_productos -> ProductosFragment()
+
+            R.id.nav_ubicaciones -> UbicacionesFragment()
+
+            R.id.nav_inventarios -> InventariosFragment()
+
+            R.id.nav_exportacion -> ExportacionFragment()
+
+            R.id.nav_configuracion -> ConfiguracionFragment()
+
+            else -> null
+        }
+
+        fragment?.let {
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.nav_host_fragment_content_main, it)
+                .commit()
+        }
+
+        binding.drawerLayout.closeDrawers()
+        return true
+    }
+
 
 
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (drawerToggle.onOptionsItemSelected(item)) return true
+
         return when (item.itemId) {
+
             R.id.exportation_db -> {
                 exportDatabase()
                 true
@@ -78,7 +140,9 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, "Base de datos Reiniciada", Toast.LENGTH_SHORT).show()
                 true
             }
+
             else -> super.onOptionsItemSelected(item)
+
         }
     }
 
@@ -132,20 +196,9 @@ class MainActivity : AppCompatActivity() {
         dbHelper.limpiarTablas()
     }
 
-     private fun isInventarioIniciado(): Boolean {
-         val prefs = getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
-         return prefs.getBoolean("inventario_iniciado", false)
-     }
 
-    private fun actualizarEstadoDrawer() {
-        val drawerLayout = findViewById<DrawerLayout>(R.id.drawer_layout)
 
-        if (isInventarioIniciado()) {
-            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
-        } else {
-            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
-        }
-    }
+
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -153,25 +206,9 @@ class MainActivity : AppCompatActivity() {
         return true
     }
 
-    override fun onSupportNavigateUp(): Boolean {
-        val navController = findNavController(R.id.nav_host_fragment_content_main)
-        return navController.navigateUp() || super.onSupportNavigateUp()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        actualizarEstadoDrawer()
-    }
 
 
-    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
-        val inventarioActivo = prefs.getBoolean("inventario_iniciado", false)
 
-        menu.findItem(R.id.clear_DB)?.isVisible = inventarioActivo
-
-        return super.onPrepareOptionsMenu(menu)
-    }
 
 
 

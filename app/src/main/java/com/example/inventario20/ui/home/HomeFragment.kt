@@ -53,6 +53,14 @@ class HomeFragment : Fragment() {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
+
+
+
+
+
+
+
+
         val mextlanBTN = binding.mextlanBTN
         val cosmarBTN = binding.cosmarBTN
         val agrimexBTN = binding.agrimexBTN
@@ -105,20 +113,6 @@ class HomeFragment : Fragment() {
         muranakaBTN.setOnClickListener { seleccionarProveedor(muranakaBTN,"muranaka") }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         return root
     }
 
@@ -128,18 +122,6 @@ class HomeFragment : Fragment() {
         val activity = activity as AppCompatActivity
         val toolbar = activity.findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
 
-
-        val prefs = requireContext()
-            .getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
-
-        val inventarioIniciado = prefs.getBoolean("inventario_iniciado", false)
-
-        if (!inventarioIniciado) {
-            findNavController().navigate(R.id.nav_iniciar_inventario)
-        }
-
-
-
         // Mantiene el botón hamburguesa
         activity.supportActionBar?.setDisplayShowTitleEnabled(false)
         activity.supportActionBar?.setDisplayShowCustomEnabled(true)
@@ -148,7 +130,7 @@ class HomeFragment : Fragment() {
         val customView = layoutInflater.inflate(R.layout.toolbar_home, null)
         customView.findViewById<TextView>(R.id.tvRegistro).text = "Registro: 1"
         customView.findViewById<TextView>(R.id.tvNombre).text = "Sin nombre"
-        abrirLoginSiNecesario()
+
         // Lo agregamos sin quitar el botón
         activity.supportActionBar?.customView = customView
 
@@ -180,17 +162,7 @@ class HomeFragment : Fragment() {
     }
 
 
-    private fun abrirLoginSiNecesario(){
-        if (!isInventarioAbierto()) {
-            findNavController().navigate(
-                R.id.nav_iniciar_inventario,
-                null,
-                navOptions {
-                    popUpTo(R.id.mobile_navigation) { inclusive = true }
-                }
-            )
-        }
-    }
+
 
     private fun viewSuelto()
     {
@@ -229,15 +201,7 @@ class HomeFragment : Fragment() {
         }
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
 
-        if (!isInventarioAbierto()) {
-            findNavController().navigate(
-                R.id.nav_iniciar_inventario
-            )
-        }
-    }
 
 
 

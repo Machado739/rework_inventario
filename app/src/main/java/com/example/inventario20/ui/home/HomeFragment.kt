@@ -24,7 +24,6 @@ import androidx.core.view.isGone
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navOptions
 
-
 class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
@@ -129,6 +128,18 @@ class HomeFragment : Fragment() {
         val activity = activity as AppCompatActivity
         val toolbar = activity.findViewById<androidx.appcompat.widget.Toolbar>(R.id.toolbar)
 
+
+        val prefs = requireContext()
+            .getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+
+        val inventarioIniciado = prefs.getBoolean("inventario_iniciado", false)
+
+        if (!inventarioIniciado) {
+            findNavController().navigate(R.id.nav_iniciar_inventario)
+        }
+
+
+
         // Mantiene el botón hamburguesa
         activity.supportActionBar?.setDisplayShowTitleEnabled(false)
         activity.supportActionBar?.setDisplayShowCustomEnabled(true)
@@ -140,6 +151,11 @@ class HomeFragment : Fragment() {
         abrirLoginSiNecesario()
         // Lo agregamos sin quitar el botón
         activity.supportActionBar?.customView = customView
+
+
+
+
+
     }
     override fun onStop() {
         super.onStop()
@@ -154,14 +170,20 @@ class HomeFragment : Fragment() {
     }
 
     private fun isInventarioAbierto(): Boolean {
-        val prefs = requireContext().getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
-        return prefs.getBoolean("inventario_iniciado",false)
+        val prefs = requireContext()
+            .getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+
+        val iniciado = prefs.getBoolean("inventario_iniciado", false)
+        val id = prefs.getLong("inventario_id_activo", -1)
+
+        return iniciado && id != -1L
     }
+
 
     private fun abrirLoginSiNecesario(){
         if (!isInventarioAbierto()) {
             findNavController().navigate(
-                R.id.nav_iniciar,
+                R.id.nav_iniciar_inventario,
                 null,
                 navOptions {
                     popUpTo(R.id.mobile_navigation) { inclusive = true }
@@ -206,6 +228,17 @@ class HomeFragment : Fragment() {
             view.clearFocus()
         }
     }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        if (!isInventarioAbierto()) {
+            findNavController().navigate(
+                R.id.nav_iniciar_inventario
+            )
+        }
+    }
+
 
 
 }

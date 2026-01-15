@@ -1,6 +1,7 @@
 package com.example.inventario20
 
 import android.content.ContentValues
+import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
@@ -20,6 +21,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
 import com.example.inventario20.databinding.ActivityMainBinding
 import java.io.FileInputStream
+import androidx.core.content.edit
 
 class MainActivity : AppCompatActivity() {
 
@@ -44,26 +46,23 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
-        appBarConfiguration = AppBarConfiguration(
+        val appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.nav_home
-            ), drawerLayout
+                R.id.nav_home,
+                R.id.nav_iniciar_inventario
+            ),
+            findViewById(R.id.drawer_layout)
         )
 
 
 
-
-
-
-
-
-
-
-
         setupActionBarWithNavController(navController, appBarConfiguration)
+
         supportActionBar?.setDisplayShowTitleEnabled(false)
 
         navView.setupWithNavController(navController)
+
+        actualizarEstadoDrawer()
     }
 
 
@@ -131,7 +130,21 @@ class MainActivity : AppCompatActivity() {
     private fun limpiarBaseDeDatos() {
         val dbHelper = DBHelper(this)
         dbHelper.limpiarTablas()
-        Toast.makeText(this, "Base de datos limpiada e inicializada", Toast.LENGTH_SHORT).show()
+    }
+
+     private fun isInventarioIniciado(): Boolean {
+         val prefs = getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+         return prefs.getBoolean("inventario_iniciado", false)
+     }
+
+    private fun actualizarEstadoDrawer() {
+        val drawerLayout = findViewById<DrawerLayout>(R.id.drawer_layout)
+
+        if (isInventarioIniciado()) {
+            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+        } else {
+            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -142,6 +155,24 @@ class MainActivity : AppCompatActivity() {
 
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
-        return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
+        return navController.navigateUp() || super.onSupportNavigateUp()
     }
+
+    override fun onResume() {
+        super.onResume()
+        actualizarEstadoDrawer()
+    }
+
+
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
+        val inventarioActivo = prefs.getBoolean("inventario_iniciado", false)
+
+        menu.findItem(R.id.clear_DB)?.isVisible = inventarioActivo
+
+        return super.onPrepareOptionsMenu(menu)
+    }
+
+
+
 }

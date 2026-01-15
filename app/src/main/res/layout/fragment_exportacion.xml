@@ -124,7 +124,7 @@
                     android:textSize="20sp" />
 
                 <Spinner
-                    android:id="@+id/spinner"
+                    android:id="@+id/spinnerTablas"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1" />
@@ -139,11 +139,15 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content">
 
+
                     <TableLayout
                         android:id="@+id/tableLayout"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:stretchColumns="*"/>
+
                 </ScrollView>
+
             </HorizontalScrollView>
 
         </LinearLayout>

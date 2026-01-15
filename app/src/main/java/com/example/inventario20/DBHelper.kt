@@ -79,7 +79,7 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
         insertarProductosIniciales (db)
         insertatClientesIniciales(db)
         insertarEmpresasIniciales(db)
-
+        insertarUbicacionesIniciales(db)
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
@@ -144,8 +144,12 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
 
 
     // Metodo para insertar un nuevo inventario
-    fun insertarInventario(nombreInventario: String, fechaCreacion: String, activo: Int): Long {
-        val db = this.writableDatabase
+    fun insertarInventario(
+        nombreInventario: String,
+        fechaCreacion: String,
+        activo: Int
+    ): Long {
+        val db = writableDatabase
         val values = ContentValues().apply {
             put("nombre_inventario", nombreInventario)
             put("fecha_creacion", fechaCreacion)
@@ -153,6 +157,7 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
         }
         return db.insert("Inventarios", null, values)
     }
+
     //Metodo para insertar un nuevo registro
     fun insertarRegistro(tarimas: Int, cajas: Int, unidades: Int, suelto: Int, total: Int, fecha: String, idubicacion: Int, idproducto: String, idcliente: Int): Long {
         val db = this.writableDatabase
@@ -221,12 +226,16 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
     }
 
     // Metodo para cerrar un inventario
-    fun cerrarInventario(idinventarios: Int, fechaCierre: String, activo: Int): Int {
+    fun cerrarInventario(
+        idinventarios: Int,
+        fechaCierre: String
+    ): Int {
         val db = this.writableDatabase
         val values = ContentValues().apply {
             put("fecha_cierre", fechaCierre)
-            put("activo", activo)
+            put("activo", 0)
         }
+
         return db.update(
             "Inventarios",
             values,
@@ -234,6 +243,24 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
             arrayOf(idinventarios.toString())
         )
     }
+
+
+    fun obtenerInventarioActivo(): Int? {
+        val db = this.readableDatabase
+        val cursor = db.rawQuery(
+            "SELECT idinventarios FROM Inventarios WHERE activo = 1 LIMIT 1",
+            null
+        )
+
+        var id: Int? = null
+        if (cursor.moveToFirst()) {
+            id = cursor.getInt(0)
+        }
+
+        cursor.close()
+        return id
+    }
+
 
     /// Metodo para obtener todos los inventarios
     fun obtenerInventarios(): List<Inventario> {
@@ -755,72 +782,51 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
         }
     }
 
-    //funcion para insertar clientes iniciales
-    fun insertarClientesIniciales() {
-        val clientesIniciales = listOf(
-            Cliente(1, "MURANAKA"),
-            Cliente(2, "COASTAL FRESH"),
-            Cliente(3, "SAKURA"),
 
+    fun insertarUbicacionesIniciales(db: SQLiteDatabase?) {
+        val ubicacionesIniciales = listOf(
+            Ubicacion(1, "BASE", 1),
+            Ubicacion(2, "Mezannine", 2),
+            Ubicacion(3, "Almacen", 2),
+            Ubicacion(4, "Piso de Produccion", 2),
+            Ubicacion(5, "Mezannine", 3),
+            Ubicacion(6, "Almacen", 3),
+            Ubicacion(7, "Piso de Produccion", 3),
         )
         val db = this.writableDatabase
-        for (cliente in clientesIniciales) {
+        for (ubicacion in ubicacionesIniciales) {
             val values = ContentValues().apply {
-                put("idcliente", cliente.idcliente)
-                put("cliente", cliente.cliente)
+                put("idubicacion", ubicacion.idubicacion)
+                put("ubicacion", ubicacion.ubicacion)
+                put("idempresas", ubicacion.idempresas)
             }
-            db.insert("Cliente", null, values)
-        }
-    }
-
-    //funcion para insertar empresas iniciales
-    fun insertarEmpresasIniciales() {
-        val empresasIniciales = listOf(
-            Empresa(1, "AGRIMEX"),
-            Empresa(2, "MEXTRAL"),
-            Empresa(3, "COSMAR")
-        )
-        val db = this.writableDatabase
-        for (empresa in empresasIniciales) {
-            val values = ContentValues().apply {
-                put("idempresas", empresa.idempresas)
-                put("empresa", empresa.empresa)
-            }
+            db.insert("Ubicaciones", null, values)
         }
     }
 
     /// Metodo para limpiar todas las tablas (para pruebas)
     // kotlin
     fun limpiarTablas() {
-        val db = this.writableDatabase
-        db.transaction {
+        val db = writableDatabase
 
-                // Borrar en orden que respete FK
-                execSQL("DELETE FROM Registros_Inventario")
-                execSQL("DELETE FROM Registros")
-                execSQL("DELETE FROM Inventarios")
-                execSQL("DELETE FROM Ubicaciones")
-                execSQL("DELETE FROM Empresas")
-                execSQL("DELETE FROM Codigos")
-                execSQL("DELETE FROM Cliente")
+                // Borrar respetando FK
+                db.execSQL("DELETE FROM Registros_Inventario")
+                db.execSQL("DELETE FROM Registros")
+                db.execSQL("DELETE FROM Inventarios")
+                db.execSQL("DELETE FROM Ubicaciones")
+                db.execSQL("DELETE FROM Empresas")
+                db.execSQL("DELETE FROM Codigos")
+                db.execSQL("DELETE FROM Cliente")
 
-                // Opcional: resetear secuencias si usas AUTOINCREMENT (descomentar si aplica)
-                execSQL("DELETE FROM sqlite_sequence WHERE name='Inventarios'")
-                execSQL("DELETE FROM sqlite_sequence WHERE name='Registros'")
-                execSQL("DELETE FROM sqlite_sequence WHERE name='Ubicaciones'")
-                execSQL("DELETE FROM sqlite_sequence WHERE name='Empresas'")
-                execSQL("DELETE FROM sqlite_sequence WHERE name='Cliente'")
+                // Insertar datos iniciales
+                insertarProductosIniciales(db)
+                insertatClientesIniciales(db)
+                insertarEmpresasIniciales(db)
+                insertarUbicacionesIniciales(db)
 
 
-                // Volver a insertar datos iniciales usando las funciones que aceptan el objeto db
-                insertarProductosIniciales(this)
-                insertatClientesIniciales(this)
-                insertarEmpresasIniciales(this)
-
-
-
-        }
     }
+
 
 
     /// Metodo para contar registros en una tabla
@@ -846,6 +852,31 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
         cursor.close()
         return exists
     }
+
+
+    fun obtenerDatosTabla(tabla: String): List<Map<String, String>> {
+        val db = readableDatabase
+        val cursor = db.rawQuery("SELECT * FROM $tabla", null)
+
+        val lista = mutableListOf<Map<String, String>>()
+
+        cursor.use {
+            val columnas = cursor.columnNames
+
+            while (cursor.moveToNext()) {
+                val fila = mutableMapOf<String, String>()
+                for (col in columnas) {
+                    fila[col] = cursor.getString(
+                        cursor.getColumnIndexOrThrow(col)
+                    ) ?: ""
+                }
+                lista.add(fila)
+            }
+        }
+        return lista
+    }
+
+
 
 
 

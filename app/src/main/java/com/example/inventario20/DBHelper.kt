@@ -810,8 +810,8 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
         val db = writableDatabase
 
                 // Borrar respetando FK
-                db.execSQL("DELETE FROM Registros_Inventario")
                 db.execSQL("DELETE FROM Registros")
+                db.execSQL("DELETE FROM Registros_Inventario")
                 db.execSQL("DELETE FROM Inventarios")
                 db.execSQL("DELETE FROM Ubicaciones")
                 db.execSQL("DELETE FROM Empresas")

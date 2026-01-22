@@ -10,12 +10,9 @@ import android.view.MenuItem
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBarDrawerToggle
-import com.google.android.material.navigation.NavigationView
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.drawerlayout.widget.DrawerLayout
 import com.example.inventario20.databinding.ActivityMainBinding
-import java.io.FileInputStream
 import com.example.inventario20.ui.configuracion.ConfiguracionFragment
 import com.example.inventario20.ui.exportacion.ExportacionFragment
 import com.example.inventario20.ui.home.HomeFragment
@@ -23,14 +20,14 @@ import com.example.inventario20.ui.iniciar.IniciarInventarioFragment
 import com.example.inventario20.ui.inventarios.InventariosFragment
 import com.example.inventario20.ui.productos.ProductosFragment
 import com.example.inventario20.ui.ubicaciones.UbicacionesFragment
+import com.google.android.material.navigation.NavigationView
+import java.io.FileInputStream
 
 class MainActivity : AppCompatActivity(),
     NavigationView.OnNavigationItemSelectedListener {
 
-    private lateinit var drawerToggle: ActionBarDrawerToggle
-
-    private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
+    private lateinit var drawerToggle: ActionBarDrawerToggle
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,38 +48,30 @@ class MainActivity : AppCompatActivity(),
         binding.drawerLayout.addDrawerListener(drawerToggle)
         drawerToggle.syncState()
 
-        // Drawer
         binding.navView.setNavigationItemSelectedListener(this)
 
-
         if (savedInstanceState == null) {
-            val dbHelper = DBHelper(this)
-            val inventarioActivoId = dbHelper.obtenerInventarioActivo()
-
-            val fragmentInicial = if (inventarioActivoId == null) {
-                habilitarDrawer(true) // 👈 ahora SÍ se ve
-                IniciarInventarioFragment()
-            } else {
-                habilitarDrawer(true)
-                HomeFragment()
-            }
-
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.nav_host_fragment_content_main, fragmentInicial)
-                .commit()
+            irAFragmentInicial()
         }
-
     }
 
-    fun habilitarDrawer(habilitar: Boolean) {
-        if (habilitar) {
-            binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
-            drawerToggle.isDrawerIndicatorEnabled = true
+    // ---------------------------
+    // NAVEGACIÓN CENTRALIZADA
+    // ---------------------------
+    private fun irAFragmentInicial() {
+        val dbHelper = DBHelper(this)
+
+        val fragment = if (dbHelper.obtenerInventarioActivo() == null) {
+            IniciarInventarioFragment()
         } else {
-            binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
-            drawerToggle.isDrawerIndicatorEnabled = false
+            HomeFragment()
         }
+
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container_main, fragment)
+            .commit()
     }
+
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
 
         val dbHelper = DBHelper(this)
@@ -99,15 +88,10 @@ class MainActivity : AppCompatActivity(),
             }
 
             R.id.nav_iniciar_inventario -> IniciarInventarioFragment()
-
             R.id.nav_productos -> ProductosFragment()
-
             R.id.nav_ubicaciones -> UbicacionesFragment()
-
             R.id.nav_inventarios -> InventariosFragment()
-
             R.id.nav_exportacion -> ExportacionFragment()
-
             R.id.nav_configuracion -> ConfiguracionFragment()
 
             else -> null
@@ -115,7 +99,7 @@ class MainActivity : AppCompatActivity(),
 
         fragment?.let {
             supportFragmentManager.beginTransaction()
-                .replace(R.id.nav_host_fragment_content_main, it)
+                .replace(R.id.fragment_container_main, it)
                 .commit()
         }
 
@@ -123,33 +107,43 @@ class MainActivity : AppCompatActivity(),
         return true
     }
 
-
+    // ---------------------------
+    // OPCIONES DEL TOOLBAR
+    // ---------------------------
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.main, menu)
+        return true
+    }
 
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
         if (drawerToggle.onOptionsItemSelected(item)) return true
 
         return when (item.itemId) {
-
             R.id.exportation_db -> {
                 exportDatabase()
                 true
             }
+
             R.id.clear_DB -> {
                 limpiarBaseDeDatos()
-                Toast.makeText(this, "Base de datos Reiniciada", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Base de datos reiniciada", Toast.LENGTH_SHORT).show()
+                irAFragmentInicial()
                 true
             }
 
             else -> super.onOptionsItemSelected(item)
-
         }
     }
 
+    // ---------------------------
+    // UTILIDADES
+    // ---------------------------
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun exportDatabase() {
         try {
-            val dbName = "MiBaseDatos.db" //
+            val dbName = "MiBaseDatos.db"
             val dbFile = getDatabasePath(dbName)
 
             if (!dbFile.exists()) {
@@ -166,50 +160,22 @@ class MainActivity : AppCompatActivity(),
             val uri = contentResolver.insert(
                 MediaStore.Downloads.EXTERNAL_CONTENT_URI,
                 values
-            )
+            ) ?: return
 
-            if (uri == null) {
-                Toast.makeText(this, "Error al crear archivo", Toast.LENGTH_SHORT).show()
-                return
-            }
-
-            contentResolver.openOutputStream(uri).use { outputStream ->
-                FileInputStream(dbFile).use { inputStream ->
-                    val buffer = ByteArray(1024)
-                    var length: Int
-                    while (inputStream.read(buffer).also { length = it } > 0) {
-                        outputStream?.write(buffer, 0, length)
-                    }
+            contentResolver.openOutputStream(uri).use { output ->
+                FileInputStream(dbFile).use { input ->
+                    input.copyTo(output!!)
                 }
             }
 
-            Toast.makeText(this, "Base de datos exportada a Descargas", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "BD exportada a Descargas", Toast.LENGTH_LONG).show()
 
         } catch (e: Exception) {
-            e.printStackTrace()
             Toast.makeText(this, "Error al exportar BD", Toast.LENGTH_SHORT).show()
         }
     }
 
     private fun limpiarBaseDeDatos() {
-        val dbHelper = DBHelper(this)
-        dbHelper.limpiarTablas()
+        DBHelper(this).limpiarTablas()
     }
-
-
-
-
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        menuInflater.inflate(R.menu.main, menu)
-        return true
-    }
-
-
-
-
-
-
-
 }

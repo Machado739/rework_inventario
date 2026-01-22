@@ -62,7 +62,7 @@ class IniciarInventarioFragment : Fragment() {
 
             if (nuevoId != -1L) {
                 parentFragmentManager.beginTransaction()
-                    .replace(R.id.nav_host_fragment_content_main, HomeFragment())
+                    .replace(R.id.fragment_container_main, HomeFragment())
                     .commit()
 
             } else {

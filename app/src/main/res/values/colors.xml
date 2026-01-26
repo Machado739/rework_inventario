@@ -7,4 +7,12 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="inv_abierto">#2E7D32</color>   <!-- Verde -->
+    <color name="inv_cerrado">#C62828</color>  <!-- Rojo -->
+    <color name="inv_reabierto">#F9A825</color> <!-- Amarillo/Naranja -->
+    <color name="inv_default">#616161</color>  <!-- Gris -->
+    <color name="inv_bg_abierto">#E8F5E9</color>     <!-- Verde claro -->
+    <color name="inv_bg_cerrado">#FDECEA</color>    <!-- Rojo claro -->
+    <color name="inv_bg_reabierto">#FFF8E1</color>  <!-- Amarillo claro -->
+
 </resources>

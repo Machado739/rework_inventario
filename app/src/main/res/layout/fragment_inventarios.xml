@@ -27,12 +27,22 @@
 
             <TextView
                 android:id="@+id/textView3"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1.1"
                 android:text="Inventario Actual:"
                 android:textAlignment="textStart"
                 android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/NomInvTXT"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="0.9"
+                android:text="NombreInv"
+                android:textAlignment="textStart"
+                android:textSize="16sp" />
+
         </LinearLayout>
 
         <LinearLayout
@@ -47,25 +57,25 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/textView4"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Nombre Inv" />
-
-                <TextView
-                    android:id="@+id/textView5"
+                    android:id="@+id/FechaHoraInvTXT"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="Dia/HoraInicio/Termino" />
 
                 <TextView
-                    android:id="@+id/textView11"
+                    android:id="@+id/CantidadRegTXT"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="CantRegistros" />
+
+                <TextView
+                    android:id="@+id/EstatusTXT"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="EstatusInv" />
 
             </LinearLayout>
 
@@ -112,8 +122,11 @@
             android:textSize="20sp" />
 
         <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvInventarios"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+
 
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

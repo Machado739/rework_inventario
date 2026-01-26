@@ -58,8 +58,9 @@
 
                             <AutoCompleteTextView
                                 android:id="@+id/ListaCodigos"
-                                android:layout_width="120dp"
+                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:hint="Buscar Producto"
                                 tools:text="          " />
                         </LinearLayout>
 
@@ -87,7 +88,7 @@
 
                             <Spinner
                                 android:id="@+id/ubicacionSPN"
-                                android:layout_width="120dp"
+                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content" />
                         </LinearLayout>
 

@@ -1,6 +1,7 @@
 package com.example.inventario20.ui.iniciar
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -39,40 +40,60 @@ class IniciarInventarioFragment : Fragment() {
 
         IniciarInventarioBTN.setOnClickListener {
 
-            val dbHelper = DBHelper(requireContext())
+            val nombreInventario = binding.NombreInvEDTXT.text.toString().trim()
 
-            val fechaActual = SimpleDateFormat(
-                "yyyy-MM-dd HH:mm:ss",
-                Locale.getDefault()
-            ).format(Date())
-
-            // IMPORTANTE:
-            // Opcional: cerrar inventarios previos activos (por seguridad)
-            val inventarioActivo = dbHelper.obtenerInventarioActivo()
-            if (inventarioActivo != null) {
-                dbHelper.cerrarInventario(inventarioActivo, fechaActual)
-            }
-
-            // Crear nuevo inventario activo
-            val nuevoId = dbHelper.insertarInventario(
-                nombreInventario = "Inventario ${fechaActual}",
-                fechaCreacion = fechaActual,
-                activo = 1
-            )
-
-            if (nuevoId != -1L) {
-                parentFragmentManager.beginTransaction()
-                    .replace(R.id.fragment_container_main, HomeFragment())
-                    .commit()
-
-            } else {
+            // 1️⃣ Validar nombre vacío
+            if (nombreInventario.isEmpty()) {
                 Toast.makeText(
-                    context,
-                    "Error al crear inventario",
+                    requireContext(),
+                    "Por favor escribe un nombre para el inventario",
                     Toast.LENGTH_SHORT
                 ).show()
+                binding.NombreInvEDTXT.requestFocus()
+                return@setOnClickListener
             }
+
+            // 2️⃣ Confirmar apertura de inventario
+            AlertDialog.Builder(requireContext())
+                .setTitle("Crear inventario")
+                .setMessage("¿Estás seguro de que deseas Crear el inventario \"$nombreInventario\"?")
+                .setPositiveButton("Sí, Crear") { _, _ ->
+
+                    val dbHelper = DBHelper(requireContext())
+                    val fechaActual = SimpleDateFormat(
+                        "yyyy-MM-dd HH:mm:ss",
+                        Locale.getDefault()
+                    ).format(Date())
+
+                    // Opcional: cerrar inventario activo previo
+                    val inventarioActivo = dbHelper.obtenerInventarioActivo()
+                    if (inventarioActivo != null) {
+                        dbHelper.cerrarInventario(inventarioActivo, fechaActual)
+                    }
+
+                    // Crear nuevo inventario
+                    val nuevoId = dbHelper.insertarInventario(
+                        nombreInventario = nombreInventario,
+                        fechaCreacion = fechaActual,
+                        activo = 1
+                    )
+
+                    if (nuevoId != -1L) {
+                        parentFragmentManager.beginTransaction()
+                            .replace(R.id.fragment_container_main, HomeFragment())
+                            .commit()
+                    } else {
+                        Toast.makeText(
+                            requireContext(),
+                            "Error al crear inventario",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+                .setNegativeButton("Cancelar", null)
+                .show()
         }
+
 
 
 

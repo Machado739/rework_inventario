@@ -13,8 +13,7 @@ class ConfiguracionFragment : Fragment() {
 
     private var _binding: FragmentConfiguracionBinding? = null
 
-    // This property is only valid between onCreateView and
-    // onDestroyView.
+    // This property is only valid between onCreateView and onDestroyView.
     private val binding get() = _binding!!
 
     override fun onCreateView(

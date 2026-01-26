@@ -23,11 +23,11 @@ import androidx.core.view.isVisible
 import androidx.core.view.isGone
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navOptions
+import com.example.inventario20.DBHelper
 
 class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
-
 
     private var empresaSeleccionada: String = ""
     private var proveedorSeleccionado: String = ""
@@ -115,6 +115,7 @@ class HomeFragment : Fragment() {
 
         return root
     }
+
 
     override fun onResume() {
         super.onResume()

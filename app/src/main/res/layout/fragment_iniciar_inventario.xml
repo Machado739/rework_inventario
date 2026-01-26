@@ -22,9 +22,9 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center"
             android:orientation="vertical"
-            android:padding="32dp"
-            android:gravity="center">
+            android:padding="32dp">
 
             <!-- Icono -->
             <ImageView
@@ -55,6 +55,16 @@
                 android:textSize="14sp" />
 
             <!-- Botón iniciar -->
+
+            <EditText
+                android:id="@+id/NombreInvEDTXT"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="Nombre de Inventario"
+                android:inputType="text"
+                android:textAlignment="center" />
+
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/IniciarInventarioBTN"
                 android:layout_width="match_parent"

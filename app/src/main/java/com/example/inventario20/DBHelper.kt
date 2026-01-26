@@ -142,6 +142,20 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
         val cliente: String,
     )
 
+    object EstadoInventario {
+        const val ABIERTO = 1
+        const val CERRADO = 0
+        const val REABIERTO = 3
+    }
+
+    data class InventarioItem(
+        val idinventarios : Int,
+        val nombre_inventario: String,
+        val fechaCreacion: String,
+        val fechaCierre: String?,
+        val activo: Int
+    )
+
 
     // Metodo para insertar un nuevo inventario
     fun insertarInventario(
@@ -225,6 +239,8 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
         return db.insert("Cliente", null, values)
     }
 
+
+
     // Metodo para cerrar un inventario
     fun cerrarInventario(
         idinventarios: Int,
@@ -244,52 +260,68 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
         )
     }
 
+    // Metodo para Re-abrir un inventario
 
-    fun obtenerInventarioActivo(): Int? {
-        val db = this.readableDatabase
-        val cursor = db.rawQuery(
-            "SELECT idinventarios FROM Inventarios WHERE activo = 1 LIMIT 1",
-            null
-        )
-
-        var id: Int? = null
-        if (cursor.moveToFirst()) {
-            id = cursor.getInt(0)
+    fun reabrirInventario(idinventarios : Int) {
+        val db = writableDatabase
+        val values = ContentValues().apply {
+            put("activo", EstadoInventario.REABIERTO)
+            putNull("fecha_cierre")
         }
 
-        cursor.close()
-        return id
+        db.update("inventarios", values, "idinventarios  = ?", arrayOf(idinventarios .toString()))
     }
+
+
+
+    fun obtenerInventarioActivo(): Int? {
+        val db = readableDatabase
+        val cursor = db.rawQuery(
+            """
+        SELECT idinventarios  FROM inventarios
+        WHERE activo IN (?, ?)
+        LIMIT 1
+        """,
+            arrayOf(
+                EstadoInventario.ABIERTO.toString(),
+                EstadoInventario.REABIERTO.toString()
+            )
+        )
+
+        val idinventarios  = if (cursor.moveToFirst()) cursor.getInt(0) else null
+        cursor.close()
+        return idinventarios
+    }
+
 
 
     /// Metodo para obtener todos los inventarios
-    fun obtenerInventarios(): List<Inventario> {
-        val inventarios = mutableListOf<Inventario>()
-        val db = this.readableDatabase
-        val cursor = db.rawQuery("SELECT * FROM Inventarios", null)
+    fun obtenerTodosLosInventarios(): List<InventarioItem> {
+        val lista = mutableListOf<InventarioItem>()
+        val db = readableDatabase
 
-        with(cursor) {
-            while (moveToNext()) {
-                val idinventarios = getInt(getColumnIndexOrThrow("idinventarios"))
-                val nombreInventario = getString(getColumnIndexOrThrow("nombre_inventario"))
-                val fechaCreacion = getString(getColumnIndexOrThrow("fecha_creacion"))
-                val fechaCierre = getString(getColumnIndexOrThrow("fecha_cierre"))
-                val activo = getInt(getColumnIndexOrThrow("activo"))
+        val cursor = db.rawQuery(
+            "SELECT * FROM inventarios ORDER BY fecha_creacion DESC",
+            null
+        )
 
-                inventarios.add(
-                    Inventario(
-                        idinventarios,
-                        nombreInventario,
-                        fechaCreacion,
-                        fechaCierre,
-                        activo
-                    )
+        while (cursor.moveToNext()) {
+            lista.add(
+                InventarioItem(
+                    idinventarios = cursor.getInt(cursor.getColumnIndexOrThrow("idinventarios")),
+                    nombre_inventario = cursor.getString(cursor.getColumnIndexOrThrow("nombre_inventario")),
+                    fechaCreacion = cursor.getString(cursor.getColumnIndexOrThrow("fecha_creacion")),
+                    fechaCierre = cursor.getString(cursor.getColumnIndexOrThrow("fecha_cierre")),
+                    activo = cursor.getInt(cursor.getColumnIndexOrThrow("activo")),
                 )
-            }
+            )
         }
+
         cursor.close()
-        return inventarios
+        return lista
     }
+
+
 
 
     // Metodo para obtener todos los registros
@@ -808,10 +840,10 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
     // kotlin
     fun limpiarTablas() {
         val db = writableDatabase
-
+                db.execSQL("DELETE FROM Registros_Inventario")
                 // Borrar respetando FK
                 db.execSQL("DELETE FROM Registros")
-                db.execSQL("DELETE FROM Registros_Inventario")
+
                 db.execSQL("DELETE FROM Inventarios")
                 db.execSQL("DELETE FROM Ubicaciones")
                 db.execSQL("DELETE FROM Empresas")

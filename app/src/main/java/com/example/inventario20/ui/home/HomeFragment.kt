@@ -12,6 +12,7 @@ import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.EditText
+import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -85,24 +86,7 @@ class HomeFragment : Fragment() {
 
 
 
-        // configurrar botones empresa
-        fun seleccionarEmpresa(boton: Button, seleccionEmp: Int) {
-            // Reiniciar el color de todos los botones
-            botonesEmpresa.forEach { it.setBackgroundColor(Color.DKGRAY) }
-            // Cambiar el color del botón seleccionado
-            boton.setBackgroundColor(Color.BLUE)
-            idEmpresa = seleccionEmp
-            actualizarUbicaciones() // Actualiza las ubicaciones al seleccionar una empresa
-        }
 
-        //configurar botones proveedor
-        fun seleccionarProveedor(boton: Button, seleccionPro: Int) {
-            // Reiniciar el color de todos los botones
-            botonesProveedor.forEach { it.setBackgroundColor(Color.DKGRAY) }
-            // Cambiar el color del botón seleccionado
-            boton.setBackgroundColor(Color.BLUE)
-            idProveedor = seleccionPro
-        }
         mextlanBTN.setOnClickListener { seleccionarEmpresa(mextlanBTN,3) }
         cosmarBTN.setOnClickListener { seleccionarEmpresa(cosmarBTN,2) }
         agrimexBTN.setOnClickListener { seleccionarEmpresa(agrimexBTN,1) }
@@ -321,15 +305,12 @@ class HomeFragment : Fragment() {
     }
 
     private fun cargarLista() {
-        Log.d("DEBUG_LISTA", "Entró a cargarLista()")
         val db = DBHelper(requireContext())
         val idInventarioActivo = db.obtenerInventarioActivo()
 
-        Log.d("DEBUG_LISTA", "Inventario activo: $idInventarioActivo")
 
         val registros = db.obtenerRegistrosPorInventario(idInventarioActivo)
 
-        Log.d("DEBUG_LISTA", "Inventario activo: $idInventarioActivo")
         // Si usas un adapter normal:
         registroAdapter.actualizarLista(registros)
 
@@ -337,27 +318,70 @@ class HomeFragment : Fragment() {
         registroAdapter.notifyDataSetChanged()
     }
 
-    private fun cargarRegistroEnFormulario(registro: Registro) {
+    // configurrar botones empresa
+    private fun seleccionarEmpresa(boton: Button, seleccionEmp: Int) {
+        // Reiniciar el color de todos los botones
 
-        registroSeleccionado = registro
+        botonesEmpresa.forEach { it.setBackgroundColor(Color.DKGRAY) }
+        // Cambiar el color del botón seleccionado
+        boton.setBackgroundColor(Color.BLUE)
+        idEmpresa = seleccionEmp
+        actualizarUbicaciones() // Actualiza las ubicaciones al seleccionar una empresa
+    }
+
+    //configurar botones proveedor
+    private fun seleccionarProveedor(boton: Button, seleccionPro: Int) {
+
+        // Reiniciar el color de todos los botones
+        botonesProveedor.forEach { it.setBackgroundColor(Color.DKGRAY) }
+        // Cambiar el color del botón seleccionado
+        boton.setBackgroundColor(Color.BLUE)
+        idProveedor = seleccionPro
+    }
+
+    private fun cargarSeleccionEmpresa(id: Int) {
+        when (id) {
+            1 -> seleccionarEmpresa(binding.agrimexBTN, 1)
+            2 -> seleccionarEmpresa(binding.cosmarBTN, 2)
+            3 -> seleccionarEmpresa(binding.mextlanBTN, 3)
+        }
+    }
+
+
+    private fun cargarSeleccionProveedor(id: Int) {
+
+        when (id) {
+            1 -> seleccionarProveedor(binding.muranakaBTN, 1)
+            2 -> seleccionarProveedor(binding.coastalBTN, 2)
+            3 -> seleccionarProveedor(binding.rainfieldBTN, 3)
+        }
+    }
+
+    private fun cargarRegistroEnFormulario(registro: Registro) {
 
         binding.tarimasEDTXT.setText(registro.tarimas.toString())
         binding.cajasEDTXT.setText(registro.cajas.toString())
         binding.piezasEDTXT.setText(registro.unidades.toString())
-        binding.sueltoEDTXT.setText(registro.suelto.toString())
+
+        if (registro.suelto != 0) {
+            viewSueltoActualizar()
+            binding.sueltoEDTXT.setText(registro.suelto.toString())
+        } else {
+            binding.sueltoEDTXT.setText("0")
+        }
 
         binding.AutoCompleteListaCodigos.setText(registro.idproducto)
 
-
-        seleccionarUbicacion(registro.idubicacion)
-        seleccionarEmpresa(registro.idempresas)
-        seleccionarProveedor(registro.idcliente)
+        // 🔥 ESTA PARTE FALTABA
+        cargarSeleccionEmpresa(registro.idempresas)
+        cargarSeleccionProveedor(registro.idcliente)
 
         binding.listaContainer.visibility = View.GONE
         binding.capturaLayout.visibility = View.VISIBLE
 
         actualizarContadorRegistro(registro.idregistro)
     }
+
 
 
     private fun limpiarFormulario() {
@@ -504,6 +528,14 @@ class HomeFragment : Fragment() {
     }*/
 
 
+    private fun viewSueltoActualizar()
+    {
+        binding.sueltoSPC1.visibility=View.GONE
+        binding.sueltoSPC2.visibility=View.GONE
+        binding.sueltoLayout.visibility=View.VISIBLE
+        binding.sueltoEDTXT.setText("0")
+
+    }
 
 
     private fun viewSuelto()

@@ -5,7 +5,7 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 
 
-class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, "MiBaseDatos.db", null, 2) {
+class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, "MiBaseDatos.db", null, 3) {
     override fun onCreate(db: SQLiteDatabase?) {
         db?.execSQL("""
                 CREATE TABLE Inventarios (
@@ -117,7 +117,7 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
         val idubicacion: Int,
         val idproducto: String,
         val idcliente: Int,
-        val idempresa: Int,
+        val idempresas: Int,
     )
 
     // Data class para la tabla Ubicaciones
@@ -506,7 +506,7 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
         cursor.close()
         return clientes
     }
-    fun obtenerRegistrosPorInventario(idInventario: Int): List<Registro> {
+    fun obtenerRegistrosPorInventario(idInventario: Int?): List<Registro> {
 
         val lista = mutableListOf<Registro>()
         val db = readableDatabase
@@ -532,12 +532,11 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
                     unidades = cursor.getInt(cursor.getColumnIndexOrThrow("unidades")),
                     suelto = cursor.getInt(cursor.getColumnIndexOrThrow("suelto")),
                     total = cursor.getInt(cursor.getColumnIndexOrThrow("total")),
-                    idempresa = cursor.getInt(cursor.getColumnIndexOrThrow("idempresa")),
+                    idempresas = cursor.getInt(cursor.getColumnIndexOrThrow("idempresas")),
                     idcliente = cursor.getInt(cursor.getColumnIndexOrThrow("idcliente")),
                     idubicacion = cursor.getInt(cursor.getColumnIndexOrThrow("idubicacion")),
                     fecha = cursor.getLong(cursor.getColumnIndexOrThrow("fecha"))
                 )
-
                 lista.add(registro)
 
             } while (cursor.moveToNext())
@@ -660,7 +659,7 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
             put("fecha", registro.fecha)
             put("idubicacion", registro.idubicacion)
             put("idproducto", registro.idproducto)
-            put("idempresa", registro.idempresa)
+            put("idempresas", registro.idempresas)
         }
         return db.update(
             "Registros",

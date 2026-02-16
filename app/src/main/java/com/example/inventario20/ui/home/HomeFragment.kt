@@ -3,6 +3,7 @@ package com.example.inventario20.ui.home
 import android.annotation.SuppressLint
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -30,7 +31,7 @@ class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null
     private var registroSeleccionado: Registro? = null
 
-    private var idInventarioActivo: Int = -1
+   //private var idInventarioActivo: Int = -1
     private lateinit var registroAdapter: RegistroAdapter
     private lateinit var autoCompleteAdapter: ArrayAdapter<DBHelper.Codigo>
 
@@ -193,7 +194,7 @@ class HomeFragment : Fragment() {
                     unidades = piezas,
                     suelto = suelto,
                     total = total,
-                    idempresa = idEmpresa,
+                    idempresas = idEmpresa,
                     idcliente = idProveedor,
                     idubicacion = idUbicacion
                 )
@@ -247,7 +248,7 @@ class HomeFragment : Fragment() {
                     unidades = piezas,
                     suelto = suelto,
                     total = total,
-                    idempresa = idEmpresa,
+                    idempresas = idEmpresa,
                     idcliente = idProveedor,
                     idubicacion = idUbicacion
                 )
@@ -290,6 +291,7 @@ class HomeFragment : Fragment() {
 
         registroAdapter = RegistroAdapter(emptyList()) { registro ->
             cargarRegistroEnFormulario(registro)
+
         }
 
         binding.registrosRecycler.layoutManager = LinearLayoutManager(requireContext())
@@ -319,10 +321,22 @@ class HomeFragment : Fragment() {
     }
 
     private fun cargarLista() {
+        Log.d("DEBUG_LISTA", "Entró a cargarLista()")
         val db = DBHelper(requireContext())
+        val idInventarioActivo = db.obtenerInventarioActivo()
+
+        Log.d("DEBUG_LISTA", "Inventario activo: $idInventarioActivo")
+
         val registros = db.obtenerRegistrosPorInventario(idInventarioActivo)
+
+        Log.d("DEBUG_LISTA", "Inventario activo: $idInventarioActivo")
+        // Si usas un adapter normal:
         registroAdapter.actualizarLista(registros)
+
+        // Esto asegura que RecyclerView refresca:
+        registroAdapter.notifyDataSetChanged()
     }
+
     private fun cargarRegistroEnFormulario(registro: Registro) {
 
         registroSeleccionado = registro
@@ -332,7 +346,15 @@ class HomeFragment : Fragment() {
         binding.piezasEDTXT.setText(registro.unidades.toString())
         binding.sueltoEDTXT.setText(registro.suelto.toString())
 
+        binding.AutoCompleteListaCodigos.setText(registro.idproducto)
+
+
+        seleccionarUbicacion(registro.idubicacion)
+        seleccionarEmpresa(registro.idempresas)
+        seleccionarProveedor(registro.idcliente)
+
         binding.listaContainer.visibility = View.GONE
+        binding.capturaLayout.visibility = View.VISIBLE
 
         actualizarContadorRegistro(registro.idregistro)
     }

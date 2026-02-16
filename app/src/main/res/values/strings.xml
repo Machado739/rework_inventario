@@ -13,4 +13,5 @@
     <string name="menu_inventarios">Inventarios</string>
     <string name="menu_exportacion">Exportacion</string>
     <string name="menu_configuracion">Configuracion</string>
+    <string name="sin_nombre">Sin nombre</string>
 </resources>

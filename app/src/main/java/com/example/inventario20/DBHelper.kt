@@ -3,7 +3,6 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
-import androidx.core.database.sqlite.transaction
 
 
 class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, "MiBaseDatos.db", null, 2) {
@@ -30,9 +29,11 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
                 idubicacion INTEGER,
                 idproducto TEXT,
                 idcliente INTEGER,
+                idempresas INTEGER,
                 FOREIGN KEY (idubicacion) REFERENCES Ubicaciones(idubicacion),
                 FOREIGN KEY (idproducto) REFERENCES Codigos(idproducto),
-                FOREIGN KEY (idcliente) REFERENCES Cliente(idcliente)
+                FOREIGN KEY (idcliente) REFERENCES Cliente(idcliente),
+                FOREIGN KEY (idempresas) REFERENCES Empresas(idempresas)
             )    
         """)
 
@@ -93,6 +94,7 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
 
         onCreate(db)
     }
+    /*
     // Data classes para representar las tablas
     data class Inventario(
         val idinventarios: Int,
@@ -100,7 +102,8 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
         val fechaCreacion: String,
         val fechaCierre: String?,   // puede ser null si aún no se ha cerrado
         val activo: Int,             // 0 = cerrado, 1 = activo
-    )
+    )*/
+
 
     // Data class para la tabla Registros
     data class Registro(
@@ -110,10 +113,11 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
         val unidades: Int,
         val suelto: Int,
         val total: Int,
-        val fecha: String,
+        val fecha: Long = System.currentTimeMillis(),
         val idubicacion: Int,
         val idproducto: String,
         val idcliente: Int,
+        val idempresa: Int,
     )
 
     // Data class para la tabla Ubicaciones
@@ -121,7 +125,11 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
         val idubicacion: Int,
         val ubicacion: String,
         val idempresas: Int,
-    )
+    ){
+        override fun toString(): String {
+            return ubicacion
+        }
+    }
 
     // Data class para la tabla Empresas
     data class Empresa(
@@ -173,25 +181,25 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
     }
 
     //Metodo para insertar un nuevo registro
-    fun insertarRegistro(tarimas: Int, cajas: Int, unidades: Int, suelto: Int, total: Int, fecha: String, idubicacion: Int, idproducto: String, idcliente: Int): Long {
+    fun insertarRegistro(registro: Registro): Long {
         val db = this.writableDatabase
         val values = ContentValues().apply {
-            put("tarimas", tarimas)
-            put("cajas", cajas)
-            put("unidades", unidades)
-            put("suelto", suelto)
-            put("total", total)
-            put("fecha", fecha)
-            put("idubicacion", idubicacion)
-            put("idproducto", idproducto)
-            put("idcliente", idcliente)
+            put("tarimas", registro.tarimas)
+            put("cajas", registro.cajas)
+            put("unidades", registro.unidades)
+            put("suelto", registro.suelto)
+            put("total", registro.total)
+            put("fecha", registro.fecha)
+            put("idubicacion", registro.idubicacion)
+            put("idproducto", registro.idproducto)
+            put("idcliente", registro.idcliente)
 
         }
         return db.insert("Registros", null, values)
     }
 
     //Metodo para insertar un nuevo registro_inventario
-    fun insertarRegistroInventario(idregistro: Int, idinventarios: Int): Long {
+    fun insertarRegistroInventario(idregistro: Int, idinventarios: Int?): Long {
         val db = this.writableDatabase
         val values = ContentValues().apply {
             put("idregistro", idregistro)
@@ -209,7 +217,7 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
         }
         return db.insert("Ubicaciones", null, values)
     }
-
+/*
     //Metodo para insertar una nueva empresa
     fun insertarEmpresa(empresa: String): Long {
         val db = this.writableDatabase
@@ -218,6 +226,7 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
         }
         return db.insert("Empresas", null, values)
     }
+    */
 
     //Metodo para insertar un nuevo codigo
     fun insertarCodigo(idproducto: String, producto: String, medida: String): Long {
@@ -229,7 +238,7 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
         }
         return db.insert("Codigos", null, values)
     }
-
+/*
     //Metodo para insertar un nuevo cliente
     fun insertarCliente(cliente: String): Long {
         val db = this.writableDatabase
@@ -238,7 +247,7 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
         }
         return db.insert("Cliente", null, values)
     }
-
+*/
 
 
     // Metodo para cerrar un inventario
@@ -337,10 +346,11 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
                 val unidades = getInt(getColumnIndexOrThrow("unidades"))
                 val suelto = getInt(getColumnIndexOrThrow("suelto"))
                 val total = getInt(getColumnIndexOrThrow("total"))
-                val fecha = getString(getColumnIndexOrThrow("fecha"))
+                val fecha = getString(getColumnIndexOrThrow("fecha")).toLongOrNull() ?: System.currentTimeMillis()
                 val idubicacion = getInt(getColumnIndexOrThrow("idubicacion"))
                 val idproducto = getString(getColumnIndexOrThrow("idproducto"))
                 val idcliente = getInt(getColumnIndexOrThrow("idcliente"))
+                val idempresa = getInt(getColumnIndexOrThrow("idempresa"))
                 registros.add(
                     Registro(
                         idregistro,
@@ -352,7 +362,8 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
                         fecha,
                         idubicacion,
                         idproducto,
-                        idcliente
+                        idcliente,
+                        idempresa
                     )
                 )
             }
@@ -383,7 +394,7 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
         cursor.close()
         return ubicaciones
     }
-
+/*
     // Metodo para obtener todas las empresas
     fun obtenerEmpresas(): List<Empresa> {
         val empresas = mutableListOf<Empresa>()
@@ -405,8 +416,10 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
         return empresas
     }
 
+ */
+
     // Metodo para obtener todos los codigos
-    fun obtenerCodigos(): List<Codigo> {
+    fun listaCodigos(): List<Codigo> {
         val codigos = mutableListOf<Codigo>()
         val db = readableDatabase
         val cursor = db.rawQuery("SELECT * FROM Codigos", null)
@@ -426,6 +439,51 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
         }
         cursor.close()
         return codigos
+    }
+
+    fun obtenerCodigosProductosMedidas(): List<Triple<String, String,String>>{
+        val lista = mutableListOf<Triple<String, String, String>>()
+        val db = this.readableDatabase
+        val cursor = db.rawQuery("SELECT idproducto, producto, medida FROM Codigos", null)
+        if (cursor.moveToFirst()){
+            do {
+                val codigo = cursor.getString(cursor.getColumnIndexOrThrow("idproducto"))
+                val producto = cursor.getString(cursor.getColumnIndexOrThrow("producto"))
+                val medida = cursor.getString(cursor.getColumnIndexOrThrow("medida"))
+                lista.add(Triple(codigo, producto, medida))
+            }while (cursor.moveToNext())
+        }
+        cursor.close()
+        db.close()
+        return lista
+    }
+/*
+    fun obtenerCodigos(): ArrayList<String> {
+        val lista = ArrayList<String>()
+        val db = this.readableDatabase
+        val cursor = db.rawQuery("SELECT idproducto FROM Codigos", null)
+        if (cursor.moveToFirst()) {
+            do{
+                lista.add(cursor.getString(cursor.getColumnIndexOrThrow("idproducto")))
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        db.close()
+        return lista
+    }
+*/
+    fun obtenerNombreProductoPorCodigo(idproducto: String): String? {
+        val db = this.readableDatabase
+        val cursor = db.rawQuery(
+            "SELECT producto FROM Codigos WHERE idproducto = ?",
+            arrayOf(idproducto)
+        )
+        var producto: String? = null
+        if (cursor.moveToFirst()) {
+            producto = cursor.getString(cursor.getColumnIndexOrThrow("producto"))
+        }
+        cursor.close()
+        return producto
     }
 
     // Metodo para obtener todos los clientes
@@ -448,6 +506,46 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
         cursor.close()
         return clientes
     }
+    fun obtenerRegistrosPorInventario(idInventario: Int): List<Registro> {
+
+        val lista = mutableListOf<Registro>()
+        val db = readableDatabase
+
+        val query = """
+        SELECT r.*
+        FROM Registros r
+        INNER JOIN Registros_Inventario ri
+        ON r.idregistro = ri.idregistro
+        WHERE ri.idinventarios = ?
+        ORDER BY r.idregistro DESC
+    """
+
+        val cursor = db.rawQuery(query, arrayOf(idInventario.toString()))
+
+        if (cursor.moveToFirst()) {
+            do {
+                val registro = Registro(
+                    idregistro = cursor.getInt(cursor.getColumnIndexOrThrow("idregistro")),
+                    idproducto = cursor.getString(cursor.getColumnIndexOrThrow("idproducto")),
+                    tarimas = cursor.getInt(cursor.getColumnIndexOrThrow("tarimas")),
+                    cajas = cursor.getInt(cursor.getColumnIndexOrThrow("cajas")),
+                    unidades = cursor.getInt(cursor.getColumnIndexOrThrow("unidades")),
+                    suelto = cursor.getInt(cursor.getColumnIndexOrThrow("suelto")),
+                    total = cursor.getInt(cursor.getColumnIndexOrThrow("total")),
+                    idempresa = cursor.getInt(cursor.getColumnIndexOrThrow("idempresa")),
+                    idcliente = cursor.getInt(cursor.getColumnIndexOrThrow("idcliente")),
+                    idubicacion = cursor.getInt(cursor.getColumnIndexOrThrow("idubicacion")),
+                    fecha = cursor.getLong(cursor.getColumnIndexOrThrow("fecha"))
+                )
+
+                lista.add(registro)
+
+            } while (cursor.moveToNext())
+        }
+
+        cursor.close()
+        return lista
+    }
 
     // Metodo para obtener todos los registros de un inventario específico
     fun obtenerRegistrosDeInventario(idinventarios: Int): List<Registro> {
@@ -468,10 +566,11 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
                 val unidades = getInt(getColumnIndexOrThrow("unidades"))
                 val suelto = getInt(getColumnIndexOrThrow("suelto"))
                 val total = getInt(getColumnIndexOrThrow("total"))
-                val fecha = getString(getColumnIndexOrThrow("fecha"))
+                val fecha = getString(getColumnIndexOrThrow("fecha")).toLongOrNull() ?: System.currentTimeMillis()
                 val idubicacion = getInt(getColumnIndexOrThrow("idubicacion"))
                 val idproducto = getString(getColumnIndexOrThrow("idproducto"))
                 val idcliente = getInt(getColumnIndexOrThrow("idcliente"))
+                val idempresa = getInt(getColumnIndexOrThrow("idempresa"))
                 registros.add(
                     Registro(
                         idregistro,
@@ -483,7 +582,8 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
                         fecha,
                         idubicacion,
                         idproducto,
-                        idcliente
+                        idcliente,
+                        idempresa
                     )
                 )
             }
@@ -510,13 +610,13 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
         val db = this.writableDatabase
         return db.delete("Ubicaciones", "idubicacion = ?", arrayOf(idubicacion.toString()))
     }
-
+/*
     // Metodo para eliminar una empresa por su ID
     fun eliminarEmpresa(idempresas: Int): Int {
         val db = this.writableDatabase
         return db.delete("Empresas", "idempresas = ?", arrayOf(idempresas.toString()))
     }
-
+*/
     // Metodo para eliminar un codigo por su ID
     fun eliminarCodigo(idproducto: String): Int {
         val db = this.writableDatabase
@@ -528,7 +628,7 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
         val db = this.writableDatabase
         return db.delete("Cliente", "idcliente = ?", arrayOf(idcliente.toString()))
     }
-
+/*
     // Metodo para actualizar un inventario
     fun actualizarInventario(idinventarios: Int, nombreInventario: String, fechaCreacion: String, fechaCierre: String?, activo: Int): Int {
         val db = this.writableDatabase
@@ -546,24 +646,27 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
         )
     }
 
+ */
+
     // Metodo para actualizar un registro
-    fun actualizarRegistro(idregistro: Int, tarimas: Int, cajas: Int, unidades: Int, suelto: Int, total: Int, fecha: String, idubicacion: Int, idproducto: String, idcliente: Int): Int {
+    fun actualizarRegistro(registro: Registro): Int {
         val db = this.writableDatabase
         val values = ContentValues().apply {
-            put("tarimas", tarimas)
-            put("cajas", cajas)
-            put("unidades", unidades)
-            put("suelto", suelto)
-            put("total", total)
-            put("fecha", fecha)
-            put("idubicacion", idubicacion)
-            put("idproducto", idproducto)
+            put("tarimas", registro.tarimas)
+            put("cajas", registro.cajas)
+            put("unidades", registro.unidades)
+            put("suelto", registro.suelto)
+            put("total", registro.total)
+            put("fecha", registro.fecha)
+            put("idubicacion", registro.idubicacion)
+            put("idproducto", registro.idproducto)
+            put("idempresa", registro.idempresa)
         }
         return db.update(
             "Registros",
             values,
             "idregistro = ?",
-            arrayOf(idregistro.toString())
+            arrayOf(registro.idregistro.toString())
         )
     }
 
@@ -581,7 +684,7 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
             arrayOf(idubicacion.toString())
         )
     }
-
+/*
     // Metodo para actualizar una empresa
     fun actualizarEmpresa(idempresas: Int, empresa: String): Int {
         val db = this.writableDatabase
@@ -595,7 +698,7 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
             arrayOf(idempresas.toString())
         )
     }
-
+*/
 
     // Metodo para actualizar un codigo
     fun actualizarCodigo(idproducto: String, producto: String, medida: String): Int {
@@ -612,7 +715,7 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
             arrayOf(idproducto)
         )
     }
-
+/*
     // Metodo para actualizar un cliente
     fun actualizarCliente(idcliente: Int, cliente: String): Int {
         val db = this.writableDatabase
@@ -626,6 +729,8 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
             arrayOf(idcliente.toString())
         )
     }
+
+ */
 
     fun insertatClientesIniciales(db: SQLiteDatabase?) {
         val clientesIniciales = listOf(
@@ -825,14 +930,13 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
             Ubicacion(6, "Almacen", 3),
             Ubicacion(7, "Piso de Produccion", 3),
         )
-        val db = this.writableDatabase
         for (ubicacion in ubicacionesIniciales) {
             val values = ContentValues().apply {
                 put("idubicacion", ubicacion.idubicacion)
                 put("ubicacion", ubicacion.ubicacion)
                 put("idempresas", ubicacion.idempresas)
             }
-            db.insert("Ubicaciones", null, values)
+            db?.insert("Ubicaciones", null, values)
         }
     }
 
@@ -840,7 +944,7 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
     // kotlin
     fun limpiarTablas() {
         val db = writableDatabase
-                db.execSQL("DELETE FROM Registros_Inventario")
+        db.execSQL("DELETE FROM Registros_Inventario")
                 // Borrar respetando FK
                 db.execSQL("DELETE FROM Registros")
 
@@ -859,30 +963,41 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
 
     }
 
-
-
-    /// Metodo para contar registros en una tabla
-    fun contarRegistros(tabla: String): Int {
-        val db = this.readableDatabase
-        val cursor = db.rawQuery("SELECT COUNT(*) FROM $tabla", null)
-        var count = 0
-        if (cursor.moveToFirst()) {
-            count = cursor.getInt(0)
+    fun contarRegistrosPorInventario(idInventario: Int?): Int {
+        val db = readableDatabase
+        val cursor = db.rawQuery(
+            """
+                SELECT COUNT(*) 
+                FROM Registros_Inventario
+                WHERE idinventarios = ?
+            """,
+            arrayOf(idInventario.toString())
+        )
+        var total = 0
+        if (cursor.moveToFirst()){
+            total = cursor.getInt(0)
         }
         cursor.close()
-        return count
+        return total
     }
 
-    /// Metodo para verificar si una tabla existe
-    fun tablaExiste(tabla: String): Boolean {
-        val db = this.readableDatabase
+    fun obtenerIndiceRegistro(idInventario: Int?, idRegistro: Int): Int {
+        val db = readableDatabase
         val cursor = db.rawQuery(
-            "SELECT name FROM sqlite_master WHERE type='table' AND name=?",
-            arrayOf(tabla)
+            """
+        SELECT COUNT(*) 
+        FROM Registros_Inventario 
+        WHERE idinventarios = ? AND idregistro <= ?
+        """,
+            arrayOf(idInventario.toString(), idRegistro.toString())
         )
-        val exists = cursor.count > 0
+
+        var indice = 0
+        if (cursor.moveToFirst()) {
+            indice = cursor.getInt(0)
+        }
         cursor.close()
-        return exists
+        return indice
     }
 
 

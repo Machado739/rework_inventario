@@ -56,7 +56,7 @@ class ProductosFragment : Fragment() {
         botonesProveedor = listOf(productoCoastalBTN, productoSakuraBTN, productoMuranakaBTN)
 
         val listView = binding.productoLIST
-         codigosOriginal = dbHelper.obtenerCodigos().sortedBy { it.idproducto }.toMutableList()
+         codigosOriginal = dbHelper.listaCodigos().sortedBy { it.idproducto }.toMutableList()
          codigosFiltrados = codigosOriginal.toMutableList()
 
         val adapter = CodigoAdapter(requireContext(), codigosFiltrados)
@@ -219,7 +219,7 @@ class ProductosFragment : Fragment() {
     private fun actualizarListaProductos() {
         val listView = binding.productoLIST
         codigosOriginal.clear()
-        codigosOriginal.addAll(dbHelper.obtenerCodigos().sortedBy { it.idproducto })
+        codigosOriginal.addAll(dbHelper.listaCodigos().sortedBy { it.idproducto })
         codigosFiltrados.clear()
         codigosFiltrados.addAll(codigosOriginal)
         (listView.adapter as CodigoAdapter).notifyDataSetChanged()

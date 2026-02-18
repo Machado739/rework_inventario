@@ -15,6 +15,7 @@ import android.widget.EditText
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.example.inventario20.R
@@ -30,19 +31,25 @@ import com.example.inventario20.DBHelper.Registro
 class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
-    private var registroSeleccionado: Registro? = null
 
-   //private var idInventarioActivo: Int = -1
+    private var registroSeleccionado: Registro? = null    // Variable para almacenar el registro seleccionado para edición
+
+    private var modoActualizacion: Boolean = false // Variable para controlar el modo de actualización
+
+    //private var idInventarioActivo: Int = -1
+
+    //conexion con el adapter del recycler
     private lateinit var registroAdapter: RegistroAdapter
     private lateinit var autoCompleteAdapter: ArrayAdapter<DBHelper.Codigo>
 
 
     private var idEmpresa: Int = -1 // Variable para almacenar la empresa seleccionada
     private var idProveedor: Int = -1 // Variable para almacenar el proveedor seleccionado
-    private var totalProducto: Int = 1
+    private var totalProducto: Int = 1 // Variable para almacenar el total calculado del producto
 
-    private lateinit var botonesEmpresa: List<Button>
-    private lateinit var botonesProveedor: List<Button>
+
+    private lateinit var botonesEmpresa: List<Button> // Lista para almacenar los botones de empresa
+    private lateinit var botonesProveedor: List<Button> // Lista para almacenar los botones de proveedor
 
 
 
@@ -144,6 +151,7 @@ class HomeFragment : Fragment() {
         binding.sueltoEDTXT.addTextChangedListener(watcher)
 
         binding.guardarBTN.setOnClickListener{
+
             val codigoProducto = listcodigos.text.toString()
             if (codigoProducto.isEmpty()) {
                 Toast.makeText(requireContext(), "Por favor, ingrese un código de producto.", Toast.LENGTH_SHORT).show()
@@ -169,7 +177,7 @@ class HomeFragment : Fragment() {
             val db = DBHelper(requireContext())
             val idInventarioActivo = db.obtenerInventarioActivo()
 
-            if(registroSeleccionado==null) {
+            if(registroSeleccionado ==null) {
                 val nuevoRegistro = Registro(
                     idregistro = 0,
                     idproducto = codigoProducto,
@@ -182,6 +190,7 @@ class HomeFragment : Fragment() {
                     idcliente = idProveedor,
                     idubicacion = idUbicacion
                 )
+                Log.d("DEBUG_GUARDAR", "Empresa guardada: $idEmpresa")
 
                 val idRegistro = db.insertarRegistro(nuevoRegistro)
 
@@ -212,6 +221,8 @@ class HomeFragment : Fragment() {
                         "Registro guardado exitosamente.",
                         Toast.LENGTH_SHORT
                     ).show()
+                    Log.d("DEBUG_GUARDAR", "Empresa guardada: $idEmpresa")
+
                     limpiarFormulario()
                     viewSuelto()
                     //cargarRegistros()
@@ -282,6 +293,15 @@ class HomeFragment : Fragment() {
         binding.registrosRecycler.adapter = registroAdapter
 
 
+        binding.nuevoBTN.setOnClickListener {
+            registroSeleccionado = null
+            modoActualizacion = false
+
+            actualizarContadorRegistro()
+            viewRegistrar()
+            limpiarFormulario()
+            viewSuelto()
+        }
 
 
 
@@ -359,6 +379,8 @@ class HomeFragment : Fragment() {
 
     private fun cargarRegistroEnFormulario(registro: Registro) {
 
+        modoActualizacion = true
+        viewActualizar()
         binding.tarimasEDTXT.setText(registro.tarimas.toString())
         binding.cajasEDTXT.setText(registro.cajas.toString())
         binding.piezasEDTXT.setText(registro.unidades.toString())
@@ -372,7 +394,6 @@ class HomeFragment : Fragment() {
 
         binding.AutoCompleteListaCodigos.setText(registro.idproducto)
 
-        // 🔥 ESTA PARTE FALTABA
         cargarSeleccionEmpresa(registro.idempresas)
         cargarSeleccionProveedor(registro.idcliente)
 
@@ -382,7 +403,32 @@ class HomeFragment : Fragment() {
         actualizarContadorRegistro(registro.idregistro)
     }
 
+    private fun viewActualizar() {
+        binding.listaRegistrosBTN.visibility=View.GONE
+        binding.atrasBTN.visibility=View.VISIBLE
+        binding.delanteBTN.visibility=View.VISIBLE
 
+
+        binding.spacebotonesReg1.visibility=View.GONE
+        binding.spacebotonesReg2.visibility=View.GONE
+
+        binding.spacebotonesAct1.visibility=View.VISIBLE
+        binding.spacebotonesAct2.visibility=View.VISIBLE
+    }
+
+
+    private fun viewRegistrar() {
+        binding.listaRegistrosBTN.visibility=View.VISIBLE
+        binding.atrasBTN.visibility=View.GONE
+        binding.delanteBTN.visibility=View.GONE
+
+
+        binding.spacebotonesAct1.visibility=View.GONE
+        binding.spacebotonesAct2.visibility=View.GONE
+
+        binding.spacebotonesReg1.visibility=View.VISIBLE
+        binding.spacebotonesReg2.visibility=View.VISIBLE
+    }
 
     private fun limpiarFormulario() {
        binding.sueltoEDTXT.setText("0")

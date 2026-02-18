@@ -193,6 +193,7 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
             put("idubicacion", registro.idubicacion)
             put("idproducto", registro.idproducto)
             put("idcliente", registro.idcliente)
+            put("idempresas", registro.idempresas)
 
         }
         return db.insert("Registros", null, values)

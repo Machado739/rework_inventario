@@ -500,6 +500,12 @@
                     android:visibility="visible" />
 
                 <Space
+                    android:id="@+id/spacebotonesAct1"
+                    android:layout_width="10dp"
+                    android:layout_height="wrap_content" />
+
+                <Space
+                    android:id="@+id/spacebotonesReg1"
                     android:layout_width="30dp"
                     android:layout_height="wrap_content" />
 
@@ -511,6 +517,12 @@
                     android:background="@drawable/save_33" />
 
                 <Space
+                    android:id="@+id/spacebotonesAct2"
+                    android:layout_width="10dp"
+                    android:layout_height="wrap_content" />
+
+                <Space
+                    android:id="@+id/spacebotonesReg2"
                     android:layout_width="30dp"
                     android:layout_height="wrap_content" />
 

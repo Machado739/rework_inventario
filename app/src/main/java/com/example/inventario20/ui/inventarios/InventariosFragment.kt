@@ -8,12 +8,15 @@ import android.view.ViewGroup
 
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.inventario20.DBHelper
 import com.example.inventario20.R
 import com.example.inventario20.databinding.FragmentInventariosBinding
+import com.example.inventario20.ui.home.HomeFragment
 import java.util.Date
 import java.util.Locale
 
@@ -54,6 +57,9 @@ class InventariosFragment : Fragment() {
 
         return root
     }
+
+
+
 
     private fun accionInventario() {
         val dbHelper = DBHelper(requireContext())

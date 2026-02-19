@@ -67,9 +67,8 @@ class MainActivity : AppCompatActivity(),
             HomeFragment()
         }
 
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.fragment_container_main, fragment)
-            .commit()
+
+
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
@@ -98,13 +97,26 @@ class MainActivity : AppCompatActivity(),
         }
 
         fragment?.let {
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container_main, it)
-                .commit()
+
+            binding.drawerLayout.closeDrawers()
+
+            binding.drawerLayout.postDelayed({
+
+                supportFragmentManager.beginTransaction()
+                    .setCustomAnimations(
+                        R.anim.slide_in_right,
+                        R.anim.slide_out_left,
+                        R.anim.slide_in_left,
+                        R.anim.slide_out_right
+                    )
+                    .replace(R.id.fragment_container_main, it)
+                    .commit()
+
+            }, 200) // 200ms es ideal
         }
 
-        binding.drawerLayout.closeDrawers()
         return true
+
     }
 
     // ---------------------------
@@ -114,6 +126,7 @@ class MainActivity : AppCompatActivity(),
         menuInflater.inflate(R.menu.main, menu)
         return true
     }
+
 
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

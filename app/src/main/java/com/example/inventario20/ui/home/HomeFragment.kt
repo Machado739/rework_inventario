@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AnimationUtils
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
@@ -88,10 +89,6 @@ class HomeFragment : Fragment() {
             ocultarTeclado()
             false
         }
-        // Evento para mostrar el layout de suelto
-        binding.sueltoBTN.setOnClickListener { viewSuelto() }
-
-
 
 
         mextlanBTN.setOnClickListener { seleccionarEmpresa(mextlanBTN,3) }
@@ -177,7 +174,7 @@ class HomeFragment : Fragment() {
             val db = DBHelper(requireContext())
             val idInventarioActivo = db.obtenerInventarioActivo()
 
-            if(registroSeleccionado ==null) {
+            if(!modoActualizacion) {
                 val nuevoRegistro = Registro(
                     idregistro = 0,
                     idproducto = codigoProducto,
@@ -190,7 +187,6 @@ class HomeFragment : Fragment() {
                     idcliente = idProveedor,
                     idubicacion = idUbicacion
                 )
-                Log.d("DEBUG_GUARDAR", "Empresa guardada: $idEmpresa")
 
                 val idRegistro = db.insertarRegistro(nuevoRegistro)
 
@@ -221,7 +217,6 @@ class HomeFragment : Fragment() {
                         "Registro guardado exitosamente.",
                         Toast.LENGTH_SHORT
                     ).show()
-                    Log.d("DEBUG_GUARDAR", "Empresa guardada: $idEmpresa")
 
                     limpiarFormulario()
                     viewSuelto()
@@ -233,10 +228,18 @@ class HomeFragment : Fragment() {
                         Toast.LENGTH_SHORT
                     ).show()
                 }
-            } else{
-                // 🟡 ACTUALIZAR REGISTRO
+            } else {
 
-                val registroActualizado = registroSeleccionado!!.copy(
+                val registro = registroSeleccionado
+
+                if (registro == null) {
+                    Toast.makeText(requireContext(), "No hay registro seleccionado.", Toast.LENGTH_SHORT).show()
+                    modoActualizacion = true
+                    actualizarModo()
+                    return@setOnClickListener
+                }
+
+                val registroActualizado = registro.copy(
                     idproducto = codigoProducto,
                     tarimas = tarimas,
                     cajas = cajas,
@@ -257,9 +260,9 @@ class HomeFragment : Fragment() {
 
                     Toast.makeText(requireContext(), "Registro actualizado.", Toast.LENGTH_SHORT).show()
 
+                    modoActualizacion = false
                     registroSeleccionado = null
-                    binding.guardarBTN.text = "Guardar"
-
+                    actualizarModo()
                     limpiarFormulario()
                     viewSuelto()
 
@@ -277,9 +280,12 @@ class HomeFragment : Fragment() {
             if (binding.listaContainer.isGone) {
                 cargarLista()
                 binding.listaContainer.visibility = View.VISIBLE
+                binding.listaContainer.scheduleLayoutAnimation()
                 binding.capturaLayout.visibility = View.GONE
             } else {
                 binding.listaContainer.visibility = View.GONE
+                binding.capturaLayout.scheduleLayoutAnimation()
+
                 binding.capturaLayout.visibility = View.VISIBLE
             }
         }
@@ -292,11 +298,18 @@ class HomeFragment : Fragment() {
         binding.registrosRecycler.layoutManager = LinearLayoutManager(requireContext())
         binding.registrosRecycler.adapter = registroAdapter
 
+        val animation = AnimationUtils.loadLayoutAnimation(
+            requireContext(),
+            R.anim.layout_animation_fall_down
+        )
+
+        binding.listaContainer.layoutAnimation = animation
+        binding.capturaLayout.layoutAnimation = animation
 
         binding.nuevoBTN.setOnClickListener {
             registroSeleccionado = null
             modoActualizacion = false
-
+            actualizarModo()
             actualizarContadorRegistro()
             viewRegistrar()
             limpiarFormulario()
@@ -308,6 +321,16 @@ class HomeFragment : Fragment() {
 
 
         return root
+    }
+
+    private fun actualizarModo() {
+        if (!modoActualizacion) {
+            binding.guardarBTN.setBackgroundResource(R.drawable.save_33)
+
+        } else {
+            binding.guardarBTN.setBackgroundResource(R.drawable.ic_actualizar_doc2)
+
+        }
     }
     private fun mostrarAnimacionGuardado() {
         binding.guardarBTN.animate()
@@ -378,8 +401,9 @@ class HomeFragment : Fragment() {
     }
 
     private fun cargarRegistroEnFormulario(registro: Registro) {
-
         modoActualizacion = true
+        actualizarModo()
+
         viewActualizar()
         binding.tarimasEDTXT.setText(registro.tarimas.toString())
         binding.cajasEDTXT.setText(registro.cajas.toString())
@@ -399,7 +423,7 @@ class HomeFragment : Fragment() {
 
         binding.listaContainer.visibility = View.GONE
         binding.capturaLayout.visibility = View.VISIBLE
-
+        cargarNombreProducto()
         actualizarContadorRegistro(registro.idregistro)
     }
 

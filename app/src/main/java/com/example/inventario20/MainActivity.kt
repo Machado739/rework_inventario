@@ -8,9 +8,11 @@ import android.provider.MediaStore
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.activity.addCallback
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.example.inventario20.databinding.ActivityMainBinding
 import com.example.inventario20.ui.configuracion.ConfiguracionFragment
@@ -35,6 +37,37 @@ class MainActivity : AppCompatActivity(),
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        onBackPressedDispatcher.addCallback(this) {
+
+            if (binding.drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                binding.drawerLayout.closeDrawer(GravityCompat.START)
+                return@addCallback
+            }
+
+            val currentFragment =
+                supportFragmentManager.findFragmentById(R.id.fragment_container_main)
+
+            if (currentFragment !is HomeFragment) {
+
+                supportFragmentManager.beginTransaction()
+                    .setCustomAnimations(
+                        R.anim.slide_in_left,   // 👈 entra desde izquierda
+                        R.anim.slide_out_right  // 👈 sale hacia derecha
+                    )
+                    .replace(R.id.fragment_container_main, HomeFragment())
+                    .commit()
+
+            } else {
+                finish()
+            }
+        }
+
+
+
+
+
+
+
         setSupportActionBar(binding.appBarMain.toolbar)
 
         drawerToggle = ActionBarDrawerToggle(
@@ -51,8 +84,13 @@ class MainActivity : AppCompatActivity(),
         binding.navView.setNavigationItemSelectedListener(this)
 
         if (savedInstanceState == null) {
-            irAFragmentInicial()
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container_main, HomeFragment())
+                .commit()
         }
+
+
+
     }
 
     // ---------------------------
@@ -67,9 +105,11 @@ class MainActivity : AppCompatActivity(),
             HomeFragment()
         }
 
-
-
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container_main, fragment)
+            .commit()
     }
+
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
 
@@ -109,8 +149,11 @@ class MainActivity : AppCompatActivity(),
                         R.anim.slide_in_left,
                         R.anim.slide_out_right
                     )
-                    .replace(R.id.fragment_container_main, it)
-                    .commit()
+                    .replace(R.id.fragment_container_main, fragment)
+                    .commit()   // ❌ SIN addToBackStack
+
+
+
 
             }, 200) // 200ms es ideal
         }
@@ -118,6 +161,8 @@ class MainActivity : AppCompatActivity(),
         return true
 
     }
+
+
 
     // ---------------------------
     // OPCIONES DEL TOOLBAR

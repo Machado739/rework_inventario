@@ -261,6 +261,7 @@ class HomeFragment : Fragment() {
                     registroSeleccionado = null
                     actualizarModo()
                     limpiarFormulario()
+                    actualizarContadorRegistro2()
                     viewSueltoOFF()
                     viewRegistrar()
                 } else {
@@ -316,12 +317,58 @@ class HomeFragment : Fragment() {
             viewSueltoOFF()
         }
 
+        binding.delanteBTN.setOnClickListener {
 
+            if (!modoActualizacion) return@setOnClickListener
 
+            if (listaRegistrosActual.isEmpty()) return@setOnClickListener
+
+            val nuevoIndice = indiceActual - 1
+
+            if (nuevoIndice in listaRegistrosActual.indices) {
+
+                indiceActual = nuevoIndice
+                val registro = listaRegistrosActual[indiceActual]
+
+                registroSeleccionado = registro
+                llenarFormulario(registro)
+                actualizarEstadoBotones()
+            } else {
+                Toast.makeText(requireContext(), "Último registro", Toast.LENGTH_SHORT).show()
+            }
+        }
+        binding.atrasBTN.setOnClickListener {
+
+            if (!modoActualizacion) return@setOnClickListener
+
+            if (listaRegistrosActual.isEmpty()) return@setOnClickListener
+
+            val nuevoIndice = indiceActual + 1
+
+            if (nuevoIndice in listaRegistrosActual.indices) {
+
+                indiceActual = nuevoIndice
+                val registro = listaRegistrosActual[indiceActual]
+
+                registroSeleccionado = registro
+                llenarFormulario(registro)
+                actualizarEstadoBotones()
+            } else {
+                Toast.makeText(requireContext(), "Primer registro", Toast.LENGTH_SHORT).show()
+            }
+        }
 
 
         return root
     }
+
+
+    private fun actualizarEstadoBotones() {
+
+        binding.delanteBTN.isEnabled = indiceActual > 0
+        binding.atrasBTN.isEnabled = indiceActual < listaRegistrosActual.size - 1
+    }
+
 
     private fun actualizarModo() {
         if (!modoActualizacion) {
@@ -346,18 +393,15 @@ class HomeFragment : Fragment() {
             }
             .start()
     }
-
     private fun cargarLista() {
         val db = DBHelper(requireContext())
         val idInventarioActivo = db.obtenerInventarioActivo()
 
-
-        val registros = db.obtenerRegistrosPorInventario(idInventarioActivo)
-
-        // Si usas un adapter normal:
-        registroAdapter.actualizarLista(registros)
-
-        // Esto asegura que RecyclerView refresca:
+        listaRegistrosActual = db.obtenerRegistrosPorInventario(idInventarioActivo)
+        listaRegistrosActual.forEachIndexed { index, reg ->
+            Log.d("DEBUG", "Index $index -> id ${reg.idregistro}")
+        }
+        registroAdapter.actualizarLista(listaRegistrosActual)
         registroAdapter.notifyDataSetChanged()
     }
 
@@ -402,10 +446,24 @@ class HomeFragment : Fragment() {
 
     private fun cargarRegistroEnFormulario(registro: Registro) {
 
+        val db = DBHelper(requireContext())
+        val idInventarioActivo = db.obtenerInventarioActivo()
+        listaRegistrosActual = db.obtenerRegistrosPorInventario(idInventarioActivo)
+            .sortedByDescending { it.idregistro }
+
         registroSeleccionado = registro
         modoActualizacion = true
         actualizarModo()
         viewActualizar()
+
+        // 👇 Encontrar índice del registro seleccionado
+        indiceActual = listaRegistrosActual.indexOfFirst {
+            it.idregistro == registro.idregistro
+        }
+        Log.d("DEBUG", "indiceActual: $indiceActual size: ${listaRegistrosActual.size}")
+        llenarFormulario(registro)
+    }
+    private fun llenarFormulario(registro: Registro) {
 
         binding.tarimasEDTXT.setText(registro.tarimas.toString())
         binding.cajasEDTXT.setText(registro.cajas.toString())
@@ -415,19 +473,19 @@ class HomeFragment : Fragment() {
             viewSueltoON()
             binding.sueltoEDTXT.setText(registro.suelto.toString())
         } else {
-            binding.sueltoEDTXT.setText("0")
+            viewSueltoOFF()
         }
 
         binding.AutoCompleteListaCodigos.setText(registro.idproducto)
 
         cargarSeleccionEmpresa(registro.idempresas)
         cargarSeleccionProveedor(registro.idcliente)
-
         binding.listaContainer.visibility = View.GONE
         binding.capturaLayout.visibility = View.VISIBLE
         cargarNombreProducto()
         actualizarContadorRegistro(registro.idregistro)
     }
+
 
     private fun viewActualizar() {
         binding.listaRegistrosBTN.visibility=View.GONE
@@ -461,7 +519,7 @@ class HomeFragment : Fragment() {
         binding.piezasEDTXT.setText("1")
         binding.sueltoEDTXT.setText("0")
         binding.totalTXT.text = "0"
-        binding.ubicacionSPN.setSelection(0)
+        binding.ubicacionSPN.setSelection(AdapterView.INVALID_POSITION)
         binding.AutoCompleteListaCodigos.text.clear()
         idEmpresa = -1
         idProveedor = -1

@@ -35,9 +35,8 @@ class HomeFragment : Fragment() {
 
     private var registroSeleccionado: Registro? = null    // Variable para almacenar el registro seleccionado para edición
 
-    private var modoActualizacion: Boolean = false // Variable para controlar el modo de actualización
 
-    //private var idInventarioActivo: Int = -1
+    private var modoActualizacion: Boolean = false // Variable para controlar el modo de actualización
 
     //conexion con el adapter del recycler
     private lateinit var registroAdapter: RegistroAdapter
@@ -53,7 +52,8 @@ class HomeFragment : Fragment() {
     private lateinit var botonesProveedor: List<Button> // Lista para almacenar los botones de proveedor
 
 
-
+    private var listaRegistrosActual: List<Registro> = emptyList()
+    private var indiceActual: Int = -1
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
@@ -173,7 +173,7 @@ class HomeFragment : Fragment() {
             val idUbicacion = ubicacionSeleccionada.idubicacion
             val db = DBHelper(requireContext())
             val idInventarioActivo = db.obtenerInventarioActivo()
-
+            Log.d("DEBUG", "modoActualizacion: $modoActualizacion")
             if(!modoActualizacion) {
                 val nuevoRegistro = Registro(
                     idregistro = 0,
@@ -198,7 +198,7 @@ class HomeFragment : Fragment() {
                         idinventarios = idInventarioActivo
                     )
 
-                    actualizarContadorRegistro(idRegistro.toInt())
+                    actualizarContadorRegistro2(idRegistro.toInt())
 
                     binding.guardarBTN.animate()
                         .scaleX(0.95f)
@@ -219,7 +219,7 @@ class HomeFragment : Fragment() {
                     ).show()
 
                     limpiarFormulario()
-                    viewSuelto()
+                    viewSueltoOFF()
                     //cargarRegistros()
                 } else {
                     Toast.makeText(
@@ -231,11 +231,14 @@ class HomeFragment : Fragment() {
             } else {
 
                 val registro = registroSeleccionado
-
+                Log.d("DEBUG", "registroSeleccionado: $registroSeleccionado")
+                Log.d("DEBUG", "idregistro: ${registroSeleccionado?.idregistro}")
                 if (registro == null) {
-                    Toast.makeText(requireContext(), "No hay registro seleccionado.", Toast.LENGTH_SHORT).show()
-                    modoActualizacion = true
-                    actualizarModo()
+                    Toast.makeText(
+                        requireContext(),
+                        "No hay registro seleccionado.",
+                        Toast.LENGTH_SHORT
+                    ).show()
                     return@setOnClickListener
                 }
 
@@ -254,18 +257,12 @@ class HomeFragment : Fragment() {
                 val filas = db.actualizarRegistro(registroActualizado)
 
                 if (filas > 0) {
-
-                    actualizarContadorRegistro(registroActualizado.idregistro)
-                    mostrarAnimacionGuardado()
-
-                    Toast.makeText(requireContext(), "Registro actualizado.", Toast.LENGTH_SHORT).show()
-
                     modoActualizacion = false
                     registroSeleccionado = null
                     actualizarModo()
                     limpiarFormulario()
-                    viewSuelto()
-
+                    viewSueltoOFF()
+                    viewRegistrar()
                 } else {
                     Toast.makeText(requireContext(), "Error al actualizar.", Toast.LENGTH_SHORT).show()
                 }
@@ -274,6 +271,9 @@ class HomeFragment : Fragment() {
 
         }
 
+        binding.sueltoBTN.setOnClickListener {
+            viewSuelto()
+        }
 
         binding.listaRegistrosBTN.setOnClickListener {
 
@@ -310,10 +310,10 @@ class HomeFragment : Fragment() {
             registroSeleccionado = null
             modoActualizacion = false
             actualizarModo()
-            actualizarContadorRegistro()
+            actualizarContadorRegistro2()
             viewRegistrar()
             limpiarFormulario()
-            viewSuelto()
+            viewSueltoOFF()
         }
 
 
@@ -401,16 +401,18 @@ class HomeFragment : Fragment() {
     }
 
     private fun cargarRegistroEnFormulario(registro: Registro) {
+
+        registroSeleccionado = registro
         modoActualizacion = true
         actualizarModo()
-
         viewActualizar()
+
         binding.tarimasEDTXT.setText(registro.tarimas.toString())
         binding.cajasEDTXT.setText(registro.cajas.toString())
         binding.piezasEDTXT.setText(registro.unidades.toString())
 
         if (registro.suelto != 0) {
-            viewSueltoActualizar()
+            viewSueltoON()
             binding.sueltoEDTXT.setText(registro.suelto.toString())
         } else {
             binding.sueltoEDTXT.setText("0")
@@ -434,10 +436,9 @@ class HomeFragment : Fragment() {
 
 
         binding.spacebotonesReg1.visibility=View.GONE
-        binding.spacebotonesReg2.visibility=View.GONE
+        binding.spacebotonesReg3.visibility=View.GONE
 
         binding.spacebotonesAct1.visibility=View.VISIBLE
-        binding.spacebotonesAct2.visibility=View.VISIBLE
     }
 
 
@@ -448,10 +449,9 @@ class HomeFragment : Fragment() {
 
 
         binding.spacebotonesAct1.visibility=View.GONE
-        binding.spacebotonesAct2.visibility=View.GONE
 
         binding.spacebotonesReg1.visibility=View.VISIBLE
-        binding.spacebotonesReg2.visibility=View.VISIBLE
+        binding.spacebotonesReg3.visibility=View.VISIBLE
     }
 
     private fun limpiarFormulario() {
@@ -484,12 +484,11 @@ class HomeFragment : Fragment() {
 
         // Inflamos nuestro layout
         val customView = layoutInflater.inflate(R.layout.toolbar_home, null)
-     //   customView.findViewById<TextView>(R.id.tvRegistro).text = "Registro: 1"
         customView.findViewById<TextView>(R.id.tvNombre).text = "Sin nombre"
 
         // Lo agregamos sin quitar el botón
         activity.supportActionBar?.customView = customView
-        actualizarContadorRegistro()
+        actualizarContadorRegistro2()
         actualizarAutoCompleteTextView()
     }
     override fun onStop() {
@@ -573,32 +572,17 @@ class HomeFragment : Fragment() {
         tvNombre?.text = nombreProducto
     }
 
-/*
 
-    private fun recargarCodigos() {
-        val db = DBHelper(requireContext())
-        val nuevosCodigos = db.obtenerCodigos()
+    private fun viewSueltoOFF()
+    {
+        binding.sueltoSPC1.visibility=View.VISIBLE
+        binding.sueltoSPC2.visibility=View.VISIBLE
+        binding.sueltoLayout.visibility=View.GONE
+        binding.sueltoEDTXT.setText("0")
 
-        codigos.clear()
-        codigos.addAll(nuevosCodigos)
-
-        adapter.notifyDataSetChanged()
     }
 
- */
-/*
-    private fun isInventarioAbierto(): Boolean {
-        val prefs = requireContext()
-            .getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
-
-        val iniciado = prefs.getBoolean("inventario_iniciado", false)
-        val id = prefs.getLong("inventario_id_activo", -1)
-
-        return iniciado && id != -1L
-    }*/
-
-
-    private fun viewSueltoActualizar()
+    private fun viewSueltoON()
     {
         binding.sueltoSPC1.visibility=View.GONE
         binding.sueltoSPC2.visibility=View.GONE
@@ -606,8 +590,6 @@ class HomeFragment : Fragment() {
         binding.sueltoEDTXT.setText("0")
 
     }
-
-
     private fun viewSuelto()
     {
         if (binding.sueltoLayout.isVisible)
@@ -708,7 +690,25 @@ class HomeFragment : Fragment() {
         tvRegistro?.text = "Reg: $indice / $total"
     }
 
+    private fun actualizarContadorRegistro2(idRegistroActual: Int? = null){
+        val db = DBHelper(requireContext())
+        val idInventarioActivo = db.obtenerInventarioActivo()
 
+        val total = db.contarRegistrosPorInventario(idInventarioActivo)
+
+        val indice = if (idRegistroActual != null){
+            db.obtenerIndiceRegistro(idInventarioActivo, idRegistroActual)
+        } else {
+            total
+        }
+
+        val indiceRegistro =indice+1 // Para mostrar el índice empezando desde 1 en lugar de 0
+
+        val activity = activity as AppCompatActivity
+        val toolbarView = activity.supportActionBar?.customView
+        val tvRegistro = toolbarView?.findViewById<TextView>(R.id.tvRegistro)
+        tvRegistro?.text = "Reg: $indiceRegistro / $total"
+    }
 
 
 

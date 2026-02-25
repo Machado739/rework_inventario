@@ -475,11 +475,19 @@
                 android:orientation="horizontal"
                 android:padding="5dp">
 
+                <Space
+                    android:id="@+id/spacebotonesReg1"
+                    android:layout_width="10dp"
+                    android:layout_height="wrap_content"
+                    android:background="#090404"
+                    android:backgroundTint="#756868"
+                    android:visibility="visible" />
+
                 <Button
                     android:id="@+id/atrasBTN"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_weight="1"
+                    android:layout_weight="1.025"
                     android:background="@drawable/ic_navigate_before"
                     android:visibility="gone" />
 
@@ -487,7 +495,7 @@
                     android:id="@+id/delanteBTN"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_weight="1"
+                    android:layout_weight="1.025"
                     android:background="@drawable/ic_navigate_next"
                     android:visibility="gone" />
 
@@ -501,13 +509,15 @@
 
                 <Space
                     android:id="@+id/spacebotonesAct1"
-                    android:layout_width="10dp"
-                    android:layout_height="wrap_content" />
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone" />
 
                 <Space
-                    android:id="@+id/spacebotonesReg1"
-                    android:layout_width="30dp"
-                    android:layout_height="wrap_content" />
+                    android:id="@+id/spacebotonesReg3"
+                    android:layout_width="75dp"
+                    android:layout_height="wrap_content"
+                    android:visibility="visible" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/guardarBTN"
@@ -517,22 +527,17 @@
                     android:background="@drawable/save_33" />
 
                 <Space
-                    android:id="@+id/spacebotonesAct2"
-                    android:layout_width="10dp"
-                    android:layout_height="wrap_content" />
-
-                <Space
                     android:id="@+id/spacebotonesReg2"
-                    android:layout_width="30dp"
-                    android:layout_height="wrap_content" />
+                    android:layout_width="15dp"
+                    android:layout_height="0dp"
+                    android:visibility="visible" />
 
                 <Button
                     android:id="@+id/nuevoBTN"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:background="@drawable/nuevoregistro"
-                    android:visibility="visible" />
+                    android:background="@drawable/nuevoregistro" />
             </LinearLayout>
         </FrameLayout>
     </LinearLayout>

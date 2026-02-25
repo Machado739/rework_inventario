@@ -84,9 +84,7 @@ class MainActivity : AppCompatActivity(),
         binding.navView.setNavigationItemSelectedListener(this)
 
         if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container_main, HomeFragment())
-                .commit()
+            irAFragmentInicial()
         }
 
 

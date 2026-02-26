@@ -14,4 +14,9 @@
     <string name="menu_exportacion">Exportacion</string>
     <string name="menu_configuracion">Configuracion</string>
     <string name="sin_nombre">Sin nombre</string>
+    <string name="no_hay_un_inventario_activo_ninicia_uno_nuevo_para_continuar">No hay un inventario activo.\nInicia uno nuevo para continuar.</string>
+    <string name="nombre_de_inventario">Nombre de Inventario</string>
+    <string name="iniciar_inventario">Iniciar inventario</string>
+    <string name="inventarios_2_0">Inventarios 2.0</string>
+    <string name="inventario">Inventario</string>
 </resources>

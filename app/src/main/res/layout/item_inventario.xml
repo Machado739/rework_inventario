@@ -8,16 +8,18 @@
 
     <TextView
         android:id="@+id/txtNombre"
-        android:textStyle="bold"
-        android:textSize="16sp"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/txtFecha"
-        android:textSize="13sp"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:textColor="@color/black"
+        android:textSize="13sp" />
 
     <TextView
         android:id="@+id/txtEstado"

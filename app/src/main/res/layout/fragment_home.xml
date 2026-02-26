@@ -104,6 +104,7 @@
                                     android:layout_height="wrap_content"
                                     android:completionThreshold="1"
                                     android:hint="Buscar Producto"
+                                    android:textAlignment="center"
                                     tools:text="          " />
                             </LinearLayout>
 
@@ -177,6 +178,7 @@
                                         android:id="@+id/cosmarBTN"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
+                                        android:backgroundTint="#5C1DD2"
                                         android:text="COSMAR"
                                         android:textSize="8sp" />
 
@@ -188,6 +190,7 @@
                                         android:id="@+id/mextlanBTN"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
+                                        android:backgroundTint="#5C1DD2"
                                         android:text="MEXTLAN"
                                         android:textSize="8sp" />
                                 </LinearLayout>
@@ -196,6 +199,7 @@
                                     android:id="@+id/agrimexBTN"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
+                                    android:backgroundTint="#5C1DD2"
                                     android:text="AGRIMEX"
                                     android:textSize="8sp" />
 
@@ -232,6 +236,7 @@
                                         android:id="@+id/rainfieldBTN"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
+                                        android:backgroundTint="#5C1DD2"
                                         android:text="Rainfield"
                                         android:textSize="8sp" />
 
@@ -245,6 +250,7 @@
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:layout_weight="1"
+                                        android:backgroundTint="#5C1DD2"
                                         android:text="Coastal"
                                         android:textSize="8sp" />
                                 </LinearLayout>
@@ -253,6 +259,7 @@
                                     android:id="@+id/muranakaBTN"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
+                                    android:backgroundTint="#5C1DD2"
                                     android:text="Muranaka"
                                     android:textSize="8sp" />
 
@@ -268,7 +275,7 @@
                 android:id="@+id/divisor1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#3F51B5">
+                android:background="#5C1DD2">
 
                 <Space
                     android:layout_width="wrap_content"
@@ -408,11 +415,12 @@
 
                             </LinearLayout>
 
-                            <Button
+                            <com.google.android.material.button.MaterialButton
                                 android:id="@+id/sueltoBTN"
                                 android:layout_width="36dp"
                                 android:layout_height="35dp"
-                                android:background="@drawable/icon_mas" />
+                                android:background="@drawable/icon_mas"
+                                android:backgroundTint="#5C1DD2" />
 
                             <Space
                                 android:id="@+id/sueltoSPC2"
@@ -457,7 +465,7 @@
             android:id="@+id/divisor2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#3F51B5">
+            android:background="#5C1DD2">
 
             <Space
                 android:layout_width="wrap_content"
@@ -483,35 +491,37 @@
                     android:backgroundTint="#756868"
                     android:visibility="visible" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/atrasBTN"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1.025"
                     android:background="@drawable/ic_navigate_before"
-                    android:visibility="gone" />
+                    android:visibility="gone"
+                    app:backgroundTint="#5C1DD2" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/delanteBTN"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1.025"
                     android:background="@drawable/ic_navigate_next"
-                    android:visibility="gone" />
-
-                <Button
-                    android:id="@+id/listaRegistrosBTN"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:background="@drawable/ic_ad_97607"
-                    android:visibility="visible" />
+                    android:visibility="gone"
+                    app:backgroundTint="#5C1DD2" />
 
                 <Space
                     android:id="@+id/spacebotonesAct1"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:visibility="gone" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/listaRegistrosBTN"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@drawable/ic_ad_97607"
+                    app:backgroundTint="#5C1DD2" />
 
                 <Space
                     android:id="@+id/spacebotonesReg3"
@@ -524,7 +534,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:background="@drawable/save_33" />
+                    android:background="@drawable/save_33"
+                    app:backgroundTint="#5C1DD2" />
 
                 <Space
                     android:id="@+id/spacebotonesReg2"
@@ -532,12 +543,15 @@
                     android:layout_height="0dp"
                     android:visibility="visible" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/nuevoBTN"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:background="@drawable/nuevoregistro" />
+                    android:background="@drawable/nuevoregistro"
+                    app:backgroundTint="#5C1DD2" />
+
+
             </LinearLayout>
         </FrameLayout>
     </LinearLayout>

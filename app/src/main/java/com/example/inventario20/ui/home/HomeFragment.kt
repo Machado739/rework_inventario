@@ -23,6 +23,7 @@ import com.example.inventario20.R
 import com.example.inventario20.databinding.FragmentHomeBinding
 import androidx.core.view.isVisible
 import androidx.core.view.isGone
+import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.inventario20.DBHelper
 import com.example.inventario20.DBHelper.Registro
@@ -259,11 +260,13 @@ class HomeFragment : Fragment() {
                 if (filas > 0) {
                     modoActualizacion = false
                     registroSeleccionado = null
+                    animarNuevo{
                     actualizarModo()
                     limpiarFormulario()
                     actualizarContadorRegistro2()
                     viewSueltoOFF()
                     viewRegistrar()
+                    }
                 } else {
                     Toast.makeText(requireContext(), "Error al actualizar.", Toast.LENGTH_SHORT).show()
                 }
@@ -310,11 +313,13 @@ class HomeFragment : Fragment() {
         binding.nuevoBTN.setOnClickListener {
             registroSeleccionado = null
             modoActualizacion = false
+            animarNuevo{
             actualizarModo()
             actualizarContadorRegistro2()
             viewRegistrar()
             limpiarFormulario()
             viewSueltoOFF()
+            }
         }
 
         binding.delanteBTN.setOnClickListener {
@@ -327,12 +332,14 @@ class HomeFragment : Fragment() {
 
             if (nuevoIndice in listaRegistrosActual.indices) {
 
+                animarSiguiente {
                 indiceActual = nuevoIndice
                 val registro = listaRegistrosActual[indiceActual]
 
                 registroSeleccionado = registro
                 llenarFormulario(registro)
                 actualizarEstadoBotones()
+                }
             } else {
                 Toast.makeText(requireContext(), "Último registro", Toast.LENGTH_SHORT).show()
             }
@@ -347,20 +354,64 @@ class HomeFragment : Fragment() {
 
             if (nuevoIndice in listaRegistrosActual.indices) {
 
+
+
+
+                animarAnterior {
                 indiceActual = nuevoIndice
                 val registro = listaRegistrosActual[indiceActual]
 
                 registroSeleccionado = registro
                 llenarFormulario(registro)
                 actualizarEstadoBotones()
+                }
             } else {
                 Toast.makeText(requireContext(), "Primer registro", Toast.LENGTH_SHORT).show()
             }
         }
 
+        binding.AutoCompleteListaCodigos.setOnItemClickListener { _, _, _, _ ->
+            val codigo = binding.AutoCompleteListaCodigos.text.toString()
+            analizarCodigoEmpresa(codigo)
+        }
+
+        binding.AutoCompleteListaCodigos.addTextChangedListener {
+            val codigo = it.toString()
+            analizarCodigoEmpresa(codigo)
+        }
 
         return root
     }
+
+    private fun analizarCodigoEmpresa(codigo: String) {
+
+        val codigoUpper = codigo.uppercase()
+
+        val coastalBTN = binding.coastalBTN
+        val rainfieldBTN = binding.rainfieldBTN
+        val muranakaBTN = binding.muranakaBTN
+
+        when {
+            codigoUpper.contains("CF") -> {
+                seleccionarProveedor(coastalBTN,2)   // 👈 ID real de empresa CF
+                actualizarUbicaciones()
+            }
+
+            codigoUpper.contains("MK") -> {
+                seleccionarProveedor(muranakaBTN,1)   // 👈 ID real de empresa MK
+                actualizarUbicaciones()
+
+            }
+
+            codigoUpper.contains("RF") -> {
+                seleccionarProveedor(rainfieldBTN,3)   // 👈 ID real de empresa RF
+                actualizarUbicaciones()
+
+            }
+        }
+    }
+
+
 
 
     private fun actualizarEstadoBotones() {
@@ -768,8 +819,70 @@ class HomeFragment : Fragment() {
         tvRegistro?.text = "Reg: $indiceRegistro / $total"
     }
 
+    //animacion para cambio de registro
+    private fun animarSiguiente(cambiarRegistro: () -> Unit) {
 
+        val view = binding.capturaLayout //contenedor donde se captura y cargan los registros
 
+        view.animate()
+            .translationX(-view.width.toFloat())
+            .alpha(0f)
+            .setDuration(200)
+            .withEndAction {
 
+                cambiarRegistro() // aquí cargas el nuevo registro
+
+                view.translationX = view.width.toFloat()
+                view.animate()
+                    .translationX(0f)
+                    .alpha(1f)
+                    .setDuration(200)
+                    .start()
+            }
+            .start()
+    }
+
+    private fun animarNuevo(cambiarRegistro: () -> Unit) {
+
+        val view = binding.capturaLayout //contenedor donde se captura y cargan los registros
+
+        view.animate()
+            .translationX(-view.width.toFloat())
+            .alpha(0f)
+            .setDuration(50)
+            .withEndAction {
+
+                cambiarRegistro() // aquí cargas el nuevo registro
+
+                view.translationX = view.width.toFloat()
+                view.animate()
+                    .translationX(0f)
+                    .alpha(1f)
+                    .setDuration(50)
+                    .start()
+            }
+            .start()
+    }
+    private fun animarAnterior(cambiarRegistro: () -> Unit) {
+
+        val view = binding.capturaLayout
+
+        view.animate()
+            .translationX(view.width.toFloat())
+            .alpha(0f)
+            .setDuration(200)
+            .withEndAction {
+
+                cambiarRegistro()
+
+                view.translationX = -view.width.toFloat()
+                view.animate()
+                    .translationX(0f)
+                    .alpha(1f)
+                    .setDuration(200)
+                    .start()
+            }
+            .start()
+    }
 
 }

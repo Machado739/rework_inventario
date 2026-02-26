@@ -15,5 +15,6 @@
     <color name="inv_bg_abierto">#E8F5E9</color>     <!-- Verde claro -->
     <color name="inv_bg_cerrado">#FDECEA</color>    <!-- Rojo claro -->
     <color name="inv_bg_reabierto">#FFF8E1</color>  <!-- Amarillo claro -->
-
+    <color name="colorTertiary">#FF9800</color>
+    <color name="colorOnTertiary">#FFFFFF</color>
 </resources>

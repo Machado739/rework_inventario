@@ -30,7 +30,7 @@
             <ImageView
                 android:layout_width="72dp"
                 android:layout_height="72dp"
-                android:contentDescription="Inventario"
+                android:contentDescription="@string/inventario"
                 android:src="@drawable/pichon" />
 
             <!-- Título -->
@@ -38,8 +38,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="Inventarios 2.0"
-                android:textColor="@color/black"
+                android:text="@string/inventarios_2_0"
                 android:textSize="22sp"
                 android:textStyle="bold" />
 
@@ -50,8 +49,7 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="24dp"
                 android:gravity="center"
-                android:text="No hay un inventario activo.\nInicia uno nuevo para continuar."
-                android:textColor="@color/material_dynamic_neutral10"
+                android:text="@string/no_hay_un_inventario_activo_ninicia_uno_nuevo_para_continuar"
                 android:textSize="14sp" />
 
             <!-- Botón iniciar -->
@@ -61,7 +59,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ems="10"
-                android:hint="Nombre de Inventario"
+                android:hint="@string/nombre_de_inventario"
                 android:inputType="text"
                 android:textAlignment="center" />
 
@@ -70,9 +68,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="14dp"
-                android:text="Iniciar inventario"
+                android:text="@string/iniciar_inventario"
                 android:textSize="16sp"
-                app:backgroundTint="#000000"
+                app:backgroundTint="#673AB7"
                 app:cornerRadius="16dp" />
 
         </LinearLayout>

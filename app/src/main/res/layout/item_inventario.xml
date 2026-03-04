@@ -10,6 +10,7 @@
         android:id="@+id/txtNombre"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="test"
         android:textColor="@color/black"
         android:textSize="16sp"
         android:textStyle="bold" />
@@ -18,13 +19,15 @@
         android:id="@+id/txtFecha"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="test"
         android:textColor="@color/black"
         android:textSize="13sp" />
 
     <TextView
         android:id="@+id/txtEstado"
-        android:textSize="12sp"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:text="test"
+        android:textSize="12sp" />
 
 </LinearLayout>

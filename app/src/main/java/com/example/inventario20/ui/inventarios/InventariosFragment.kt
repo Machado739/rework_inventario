@@ -19,6 +19,9 @@ import com.example.inventario20.databinding.FragmentInventariosBinding
 import com.example.inventario20.ui.home.HomeFragment
 import java.util.Date
 import java.util.Locale
+import kotlin.toString
+import androidx.core.view.isVisible
+
 
 class InventariosFragment : Fragment() {
     private val PASSWORD_REABRIR = "222431"
@@ -33,7 +36,7 @@ class InventariosFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         val inventariosViewModel =
             ViewModelProvider(this)[InventariosViewModel::class.java]
@@ -51,6 +54,25 @@ class InventariosFragment : Fragment() {
             accionInventario()
         }
 
+
+        val registrosBTN = binding.registrosBTN
+
+        registrosBTN.setOnClickListener {
+            val id = idInventarioSeleccionado ?: return@setOnClickListener
+
+            cargarRegistros(id)
+            if (binding.rvInventarios.isVisible) {
+                binding.rvInventarios.visibility = View.GONE
+                binding.rvRegistros.visibility = View.VISIBLE
+                binding.registrosBTN.text="Ocultar Registros"
+
+            } else {
+                binding.rvInventarios.visibility = View.VISIBLE
+                binding.rvRegistros.visibility = View.GONE
+                binding.registrosBTN.text="Ver Registros"
+            }
+
+        }
 
 
 
@@ -108,6 +130,23 @@ class InventariosFragment : Fragment() {
 
     }
 
+    private fun cargarTotalRegistros(idInventario: Int){
+        val dbHelper = DBHelper(requireContext())
+        val total = dbHelper.contarRegistrosPorInventario(idInventario)
+
+        binding.CantidadRegTXT.animate()
+            .alpha(0f)
+            .setDuration(100)
+            .withEndAction {
+                binding.CantidadRegTXT.text = "Cant Registros: $total"
+                binding.CantidadRegTXT.animate()
+                    .alpha(1f)
+                    .setDuration(100)
+                    .start()
+
+            }
+            .start()
+    }
     private fun reabrirInventario() {
 
         val dialogView = layoutInflater.inflate(R.layout.dialog_password, null)
@@ -208,21 +247,65 @@ class InventariosFragment : Fragment() {
         binding.rvInventarios.adapter = adapter
     }
 
+    private fun cargarRegistros(inventarioId: Int) {
 
+        val dbHelper = DBHelper(requireContext())
+        val registros = dbHelper.obtenerRegistrosPorInventarioNombre(inventarioId)
+
+        val adapter = InventarioRegistroAdapter(registros) { registro ->
+            // Acción al hacer clic en un registro (si es necesario)
+        }
+
+        binding.rvRegistros.layoutManager =
+            LinearLayoutManager(requireContext())
+
+        binding.rvRegistros.adapter = adapter
+    }
 
     private fun mostrarInventario(inventario: DBHelper.InventarioItem) {
 
-        binding.NomInvTXT.text = inventario.nombre_inventario
+        binding.NomInvTXT.animate()
+            .alpha(0f)
+            .setDuration(100)
+            .withEndAction {
+                binding.NomInvTXT.text = inventario.nombre_inventario
+                binding.NomInvTXT.animate()
+                    .alpha(1f)
+                    .setDuration(100)
+                    .start()
+            }
+            .start()
 
-        binding.FechaHoraInvTXT.text =
-            if (inventario.fechaCierre == null)
-                "Creado: ${inventario.fechaCreacion}"
-            else
-                "Creado: ${inventario.fechaCreacion}\nCerrado: ${inventario.fechaCierre}"
+        binding.FechaHoraInvTXT.animate()
+            .alpha(0f)
+            .setDuration(100)
+            .withEndAction {
+                binding.FechaHoraInvTXT.text =
+                    if (inventario.fechaCierre == null)
+                        "Creado: ${inventario.fechaCreacion}\nCerrado: "
+                    else
+                        "Creado: ${inventario.fechaCreacion}\nCerrado: ${inventario.fechaCierre}"
+                binding.FechaHoraInvTXT.animate()
+                    .alpha(1f)
+                    .setDuration(100)
+                    .start()
+            }
+            .start()
 
-        binding.CantidadRegTXT.text = "—"
+        binding.EstatusTXT.animate()
+            .alpha(0f)
+            .setDuration(100)
+            .withEndAction {
+                binding.EstatusTXT.text = estadoTexto(inventario.activo)
+                binding.EstatusTXT.animate()
+                    .alpha(1f)
+                    .setDuration(100)
+                    .start()
+            }
+            .start()
 
-        binding.EstatusTXT.text = estadoTexto(inventario.activo)
+        cargarTotalRegistros(inventario.idinventarios)
+
     }
 
     fun obtenerFechaActual(): String {

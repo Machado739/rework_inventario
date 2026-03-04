@@ -164,6 +164,19 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
         val activo: Int
     )
 
+    data class RegistroInventarioItem(
+        val idregistro: Int,
+        val tarimas: String,
+        val cajas: String,
+        val unidades: String,
+        val suelto: String,
+        val total: String,
+        val ubicacion: String,
+        val producto: String,
+        val cliente: String,
+        val empresa: String
+    )
+
 
     // Metodo para insertar un nuevo inventario
     fun insertarInventario(
@@ -540,6 +553,47 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
                 )
                 lista.add(registro)
 
+            } while (cursor.moveToNext())
+        }
+
+        cursor.close()
+        return lista
+    }
+
+    fun obtenerRegistrosPorInventarioNombre(idInventario: Int?): List<RegistroInventarioItem> {
+        val lista = mutableListOf<RegistroInventarioItem>()
+        val db = readableDatabase
+
+        val query = """
+            SELECT r.idregistro, r.tarimas, r.cajas, r.unidades, r.suelto, r.total,
+                   u.ubicacion, c.producto, cl.cliente, e.empresa
+            FROM Registros r
+            INNER JOIN Registros_Inventario ri ON r.idregistro = ri.idregistro
+            INNER JOIN Ubicaciones u ON r.idubicacion = u.idubicacion
+            INNER JOIN Codigos c ON r.idproducto = c.idproducto
+            INNER JOIN Cliente cl ON r.idcliente = cl.idcliente
+            INNER JOIN Empresas e ON r.idempresas = e.idempresas
+            WHERE ri.idinventarios = ?
+            ORDER BY r.idregistro DESC
+        """
+
+        val cursor = db.rawQuery(query, arrayOf(idInventario.toString()))
+
+        if (cursor.moveToFirst()) {
+            do {
+                val item = RegistroInventarioItem(
+                    idregistro = cursor.getInt(cursor.getColumnIndexOrThrow("idregistro")),
+                    tarimas = cursor.getInt(cursor.getColumnIndexOrThrow("tarimas")).toString(),
+                    cajas = cursor.getInt(cursor.getColumnIndexOrThrow("cajas")).toString(),
+                    unidades = cursor.getInt(cursor.getColumnIndexOrThrow("unidades")).toString(),
+                    suelto = cursor.getInt(cursor.getColumnIndexOrThrow("suelto")).toString(),
+                    total = cursor.getInt(cursor.getColumnIndexOrThrow("total")).toString(),
+                    ubicacion = cursor.getString(cursor.getColumnIndexOrThrow("ubicacion")),
+                    producto = cursor.getString(cursor.getColumnIndexOrThrow("producto")),
+                    cliente = cursor.getString(cursor.getColumnIndexOrThrow("cliente")),
+                    empresa = cursor.getString(cursor.getColumnIndexOrThrow("empresa"))
+                )
+                lista.add(item)
             } while (cursor.moveToNext())
         }
 

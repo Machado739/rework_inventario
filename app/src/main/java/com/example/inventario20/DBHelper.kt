@@ -172,9 +172,25 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
         val suelto: String,
         val total: String,
         val ubicacion: String,
+        val idproducto: String,
         val producto: String,
         val cliente: String,
-        val empresa: String
+        val empresa: String,
+        val medida: String
+    )
+
+    data class RegistroAgrupado(
+        val idproducto: String,
+        val producto: String,
+        val empresa: String,
+        val ubicacion: String,
+        val cliente: String,
+        var tarimas: MutableList<String> = mutableListOf(),
+        var cajas: MutableList<String> = mutableListOf(),
+        var unidades: MutableList<String> = mutableListOf(),
+        var suelto: MutableList<String> = mutableListOf(),
+        var total: Int = 0,
+        var medida: String
     )
 
 
@@ -566,7 +582,7 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
 
         val query = """
             SELECT r.idregistro, r.tarimas, r.cajas, r.unidades, r.suelto, r.total,
-                   u.ubicacion, c.producto, cl.cliente, e.empresa
+                   u.ubicacion,c.idproducto, c.producto, cl.cliente, e.empresa, c.medida
             FROM Registros r
             INNER JOIN Registros_Inventario ri ON r.idregistro = ri.idregistro
             INNER JOIN Ubicaciones u ON r.idubicacion = u.idubicacion
@@ -589,9 +605,11 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
                     suelto = cursor.getInt(cursor.getColumnIndexOrThrow("suelto")).toString(),
                     total = cursor.getInt(cursor.getColumnIndexOrThrow("total")).toString(),
                     ubicacion = cursor.getString(cursor.getColumnIndexOrThrow("ubicacion")),
+                    idproducto = cursor.getString(cursor.getColumnIndexOrThrow("idproducto")),
                     producto = cursor.getString(cursor.getColumnIndexOrThrow("producto")),
                     cliente = cursor.getString(cursor.getColumnIndexOrThrow("cliente")),
-                    empresa = cursor.getString(cursor.getColumnIndexOrThrow("empresa"))
+                    empresa = cursor.getString(cursor.getColumnIndexOrThrow("empresa")),
+                    medida = cursor.getString(cursor.getColumnIndexOrThrow("medida"))
                 )
                 lista.add(item)
             } while (cursor.moveToNext())
@@ -1077,9 +1095,106 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
         return lista
     }
 
+    fun obtenerNombreInventario(id: Int): String {
+        val db = readableDatabase
+        val cursor = db.rawQuery(
+            "SELECT nombre_inventario FROM Inventarios WHERE idinventarios = ?",
+            arrayOf(id.toString())
+        )
+        var nombre = "Inventario"
 
+        if(cursor.moveToFirst()){
+            nombre = cursor.getString(cursor.getColumnIndexOrThrow("nombre_inventario"))
+        }
 
+        cursor.close()
+        return nombre
+    }
 
+    fun eliminarInventarioCompleto(idInventario: Int): Boolean {
+        val db = writableDatabase
+        db.beginTransaction()
+
+        return try {
+
+            // 🔹 1. Obtener registros ligados a ese inventario
+            val cursor = db.rawQuery(
+                "SELECT idregistro FROM Registros_Inventario WHERE idinventarios = ?",
+                arrayOf(idInventario.toString())
+            )
+
+            val registrosIds = mutableListOf<Int>()
+
+            if (cursor.moveToFirst()) {
+                do {
+                    registrosIds.add(cursor.getInt(0))
+                } while (cursor.moveToNext())
+            }
+            cursor.close()
+
+            // 🔹 2. Borrar relación
+            db.delete(
+                "Registros_Inventario",
+                "idinventarios = ?",
+                arrayOf(idInventario.toString())
+            )
+
+            // 🔹 3. Borrar registros (solo si no están en otro inventario)
+            for (idRegistro in registrosIds) {
+
+                val c = db.rawQuery(
+                    "SELECT COUNT(*) FROM Registros_Inventario WHERE idregistro = ?",
+                    arrayOf(idRegistro.toString())
+                )
+
+                var count = 0
+                if (c.moveToFirst()) count = c.getInt(0)
+                c.close()
+
+                if (count == 0) {
+                    db.delete(
+                        "Registros",
+                        "idregistro = ?",
+                        arrayOf(idRegistro.toString())
+                    )
+                }
+            }
+
+            // 🔹 4. Borrar inventario
+            db.delete(
+                "Inventarios",
+                "idinventarios = ?",
+                arrayOf(idInventario.toString())
+            )
+
+            db.setTransactionSuccessful()
+            true
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        } finally {
+            db.endTransaction()
+        }
+    }
+
+    fun esInventarioReabierto(idInventario: Int): Boolean {
+        val db = readableDatabase
+
+        val cursor = db.rawQuery(
+            "SELECT activo FROM Inventarios WHERE idinventarios = ?",
+            arrayOf(idInventario.toString())
+        )
+
+        var esReabierto = false
+
+        if (cursor.moveToFirst()) {
+            esReabierto = cursor.getInt(0) == 3
+        }
+
+        cursor.close()
+        return esReabierto
+    }
 
 
 

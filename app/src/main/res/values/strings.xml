@@ -1,22 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Inventario 2.0</string>
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="nav_header_title">Android Studio</string>
-    <string name="nav_header_subtitle">android.studio@android.com</string>
-    <string name="nav_header_desc">Navigation header</string>
-    <string name="action_settings">Settings</string>
+    <string name="app_name">Inventario20</string>
 
-    <string name="menu_home">Home</string>
+    <string name="ocultar_registros">Ocultar Registros</string>
+    <string name="ver_registros">Ver Registros</string>
+    <string name="seleccionar_inventario_para_excel">Selecciona un inventario para generar el Excel</string>
+
+    <string name="solo_reabiertos">Solo se pueden eliminar inventarios reabiertos</string>
+    <string name="inventario_eliminado">Inventario eliminado</string>
+    <string name="error_eliminar_inventario">Error al eliminar inventario</string>
+    <string name="error_respaldo_no_eliminado">Error al generar respaldo. No se eliminó.</string>
+
+    <string name="excel_guardado_descargas">Excel guardado en Descargas</string>
+    <string name="error_guardar_excel">Error al guardar el archivo Excel</string>
+
+    <string name="contrasena_incorrecta">Contraseña incorrecta</string>
+    <string name="ya_hay_inventario_activo">Ya hay un inventario activo</string>
+    <string name="inventario_reabierto">Inventario reabierto</string>
+
+    <string name="cant_registros_valor">Cant Registros: %1$d</string>
+
+    <!-- Otros textos usados en dialogs o toasts (no reemplazados aún) -->
+    <string name="confirmar_cierre_titulo">Cerrar inventario</string>
+    <string name="confirmar_cierre_mensaje">¿Estás seguro de cerrar el inventario actual?</string>
+    <string name="no_hay_inventario_disponible">No hay inventario disponible</string>
+    <string name="inventario_cerrado">Inventario cerrado</string>
+
+    <!-- Nuevas claves para literales en el fragment -->
+    <string name="nombre_inventario_pred">Nombre del inventario</string>
+    <string name="creado_cerrado_pred">Creado: \nCerrado:</string>
+    <string name="creado_cerrado_format">Creado: %1$s\nCerrado: %2$s</string>
+    <string name="estatus_label">Estatus</string>
+    <string name="cant_registros_label">Cant Registros:</string>
+
+    <string name="cerrar_inventario">Cerrar inventario</string>
+    <string name="reabrir_inventario">Reabrir inventario</string>
+    <string name="inventario_no_disponible">Inventario no disponible</string>
+
+    <!-- Strings añadidos para resolver resource linking errors -->
+    <string name="inventario">Inventario</string>
+    <string name="inventarios_2_0">Inventarios 2.0</string>
+    <string name="no_hay_un_inventario_activo_ninicia_uno_nuevo_para_continuar">No hay un inventario activo, inicia uno nuevo para continuar</string>
+    <string name="nombre_de_inventario">Nombre de inventario</string>
+    <string name="iniciar_inventario">Iniciar inventario</string>
+
+    <string name="nav_header_desc">Gestiona tus inventarios y registros</string>
+    <string name="nav_header_title">Inventario20</string>
+    <string name="nav_header_subtitle">Administra tu almacén</string>
+
+    <string name="sin_nombre">Sin nombre</string>
+
+    <string name="menu_home">Inicio</string>
     <string name="menu_productos">Productos</string>
     <string name="menu_ubicaciones">Ubicaciones</string>
     <string name="menu_inventarios">Inventarios</string>
-    <string name="menu_exportacion">Exportacion</string>
-    <string name="menu_configuracion">Configuracion</string>
-    <string name="sin_nombre">Sin nombre</string>
-    <string name="no_hay_un_inventario_activo_ninicia_uno_nuevo_para_continuar">No hay un inventario activo.\nInicia uno nuevo para continuar.</string>
-    <string name="nombre_de_inventario">Nombre de Inventario</string>
-    <string name="iniciar_inventario">Iniciar inventario</string>
-    <string name="inventarios_2_0">Inventarios 2.0</string>
-    <string name="inventario">Inventario</string>
+    <string name="menu_exportacion">Exportación</string>
+    <string name="menu_configuracion">Configuración</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <!-- Estados para InventarioAdapter -->
+    <string name="estado_abierto">ABIERTO</string>
+    <string name="estado_cerrado">CERRADO</string>
+    <string name="estado_reabierto">REABIERTO</string>
+    <string name="estado_desconocido">DESCONOCIDO</string>
 </resources>

@@ -51,7 +51,7 @@
             android:orientation="horizontal">
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:orientation="vertical">
@@ -59,34 +59,34 @@
                 <TextView
                     android:id="@+id/FechaHoraInvTXT"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:text="Dia/HoraInicio/Termino" />
 
                 <TextView
                     android:id="@+id/CantidadRegTXT"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:text="CantRegistros" />
 
                 <TextView
                     android:id="@+id/EstatusTXT"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:text="EstatusInv" />
 
             </LinearLayout>
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:layout_weight="1.1"
                 android:orientation="vertical">
 
                 <Button
-                    android:id="@+id/button"
+                    android:id="@+id/generarExcelBTN"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Generar Excel" />
@@ -111,6 +111,14 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="accion Inventario" />
+
+            <Button
+                android:id="@+id/borrarInventarioBTN"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Borrar Inventario"
+                android:visibility="gone" />
         </LinearLayout>
 
         <TextView

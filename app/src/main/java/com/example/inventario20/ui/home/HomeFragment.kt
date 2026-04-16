@@ -27,7 +27,7 @@ import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.inventario20.DBHelper
 import com.example.inventario20.DBHelper.Registro
-
+import com.example.inventario20.ui.UiNotifier
 
 
 class HomeFragment : Fragment() {
@@ -152,15 +152,16 @@ class HomeFragment : Fragment() {
 
             val codigoProducto = listcodigos.text.toString()
             if (codigoProducto.isEmpty()) {
-                Toast.makeText(requireContext(), "Por favor, ingrese un código de producto.", Toast.LENGTH_SHORT).show()
+                UiNotifier.info(binding.root, "Por favor, ingrese un código de producto.")
                 return@setOnClickListener
             }
             if (idEmpresa == -1) {
-                Toast.makeText(requireContext(), "Por favor, seleccione una empresa.", Toast.LENGTH_SHORT).show()
+                UiNotifier.info(binding.root, "Por favor, seleccione una empresa.")
                 return@setOnClickListener
             }
             if (idProveedor == -1) {
-                Toast.makeText(requireContext(), "Por favor, seleccione un proveedor.", Toast.LENGTH_SHORT).show()
+                UiNotifier.info(binding.root, "Por favor, seleccione un proveedor.")
+
                 return@setOnClickListener
             }
 
@@ -174,7 +175,6 @@ class HomeFragment : Fragment() {
             val idUbicacion = ubicacionSeleccionada.idubicacion
             val db = DBHelper(requireContext())
             val idInventarioActivo = db.obtenerInventarioActivo()
-            Log.d("DEBUG", "modoActualizacion: $modoActualizacion")
             if(!modoActualizacion) {
                 val nuevoRegistro = Registro(
                     idregistro = 0,
@@ -213,33 +213,29 @@ class HomeFragment : Fragment() {
                                 .start()
                         }
                         .start()
-                    Toast.makeText(
-                        requireContext(),
-                        "Registro guardado exitosamente.",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    UiNotifier.info(
+                        binding.root,
+                        "Registro guardado exitosamente."
+                    )
 
-                    limpiarFormulario()
+                    limpiarFormulario2()
                     viewSueltoOFF()
                     //cargarRegistros()
                 } else {
-                    Toast.makeText(
-                        requireContext(),
-                        "Error al guardar el registro.",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    UiNotifier.info(
+                        binding.root,
+                        "Error al guardar el registro."
+                    )
                 }
             } else {
 
                 val registro = registroSeleccionado
-                Log.d("DEBUG", "registroSeleccionado: $registroSeleccionado")
-                Log.d("DEBUG", "idregistro: ${registroSeleccionado?.idregistro}")
+
                 if (registro == null) {
-                    Toast.makeText(
-                        requireContext(),
-                        "No hay registro seleccionado.",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    UiNotifier.info(
+                        binding.root,
+                        "No hay registro seleccionado para actualizar."
+                    )
                     return@setOnClickListener
                 }
 
@@ -262,13 +258,16 @@ class HomeFragment : Fragment() {
                     registroSeleccionado = null
                     animarNuevo{
                     actualizarModo()
-                    limpiarFormulario()
+                    limpiarFormulario2()
                     actualizarContadorRegistro2()
                     viewSueltoOFF()
                     viewRegistrar()
                     }
                 } else {
-                    Toast.makeText(requireContext(), "Error al actualizar.", Toast.LENGTH_SHORT).show()
+                    UiNotifier.info(
+                        binding.root,
+                        "Error al actualizar el registro."
+                    )
                 }
             }
 
@@ -316,6 +315,7 @@ class HomeFragment : Fragment() {
             animarNuevo{
             actualizarModo()
             actualizarContadorRegistro2()
+                actualizarUbicaciones()
             viewRegistrar()
             limpiarFormulario()
             viewSueltoOFF()
@@ -341,7 +341,7 @@ class HomeFragment : Fragment() {
                 actualizarEstadoBotones()
                 }
             } else {
-                Toast.makeText(requireContext(), "Último registro", Toast.LENGTH_SHORT).show()
+                UiNotifier.info(binding.root, "Último registro")
             }
         }
         binding.atrasBTN.setOnClickListener {
@@ -366,7 +366,7 @@ class HomeFragment : Fragment() {
                 actualizarEstadoBotones()
                 }
             } else {
-                Toast.makeText(requireContext(), "Primer registro", Toast.LENGTH_SHORT).show()
+                UiNotifier.info(binding.root, "Último registro")
             }
         }
 
@@ -394,18 +394,18 @@ class HomeFragment : Fragment() {
         when {
             codigoUpper.contains("CF") -> {
                 seleccionarProveedor(coastalBTN,2)   // 👈 ID real de empresa CF
-                actualizarUbicaciones()
+            //    actualizarUbicaciones()
             }
 
             codigoUpper.contains("MK") -> {
                 seleccionarProveedor(muranakaBTN,1)   // 👈 ID real de empresa MK
-                actualizarUbicaciones()
+              //  actualizarUbicaciones()
 
             }
 
             codigoUpper.contains("RF") -> {
                 seleccionarProveedor(rainfieldBTN,3)   // 👈 ID real de empresa RF
-                actualizarUbicaciones()
+             //   actualizarUbicaciones()
 
             }
         }
@@ -449,9 +449,7 @@ class HomeFragment : Fragment() {
         val idInventarioActivo = db.obtenerInventarioActivo()
 
         listaRegistrosActual = db.obtenerRegistrosPorInventario(idInventarioActivo)
-        listaRegistrosActual.forEachIndexed { index, reg ->
-            Log.d("DEBUG", "Index $index -> id ${reg.idregistro}")
-        }
+
         registroAdapter.actualizarLista(listaRegistrosActual)
         registroAdapter.notifyDataSetChanged()
     }
@@ -511,7 +509,6 @@ class HomeFragment : Fragment() {
         indiceActual = listaRegistrosActual.indexOfFirst {
             it.idregistro == registro.idregistro
         }
-        Log.d("DEBUG", "indiceActual: $indiceActual size: ${listaRegistrosActual.size}")
         llenarFormulario(registro)
     }
     private fun llenarFormulario(registro: Registro) {
@@ -579,6 +576,19 @@ class HomeFragment : Fragment() {
         cargarNombreProducto()
     }
 
+    private fun limpiarFormulario2() { // Limpia el formulario sin resetear empresa y por extencion las ubicaciones
+        binding.sueltoEDTXT.setText("0")
+        binding.tarimasEDTXT.setText("1")
+        binding.cajasEDTXT.setText("1")
+        binding.piezasEDTXT.setText("1")
+        binding.sueltoEDTXT.setText("0")
+        binding.totalTXT.text = "0"
+        binding.ubicacionSPN.setSelection(AdapterView.INVALID_POSITION)
+        binding.AutoCompleteListaCodigos.text.clear()
+        idProveedor = -1
+        botonesProveedor.forEach { it.setBackgroundColor(requireContext().getColor(R.color.morado)) }
+        cargarNombreProducto()
+    }
 
     @SuppressLint("SetTextI18n", "InflateParams")
     override fun onResume() {
@@ -651,7 +661,7 @@ class HomeFragment : Fragment() {
 
         val listcodigos = view?.findViewById<AutoCompleteTextView>(R.id.AutoCompleteListaCodigos)
         if (listcodigos == null) {
-            Toast.makeText(requireContext(), "View not found", Toast.LENGTH_SHORT).show()
+            UiNotifier.info(binding.root, "Error: AutoCompleteTextView no encontrado")
             return
         }
         val adapter = ArrayAdapter(

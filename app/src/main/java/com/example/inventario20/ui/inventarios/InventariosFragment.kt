@@ -10,12 +10,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.inventario20.DBHelper
 import com.example.inventario20.R
 import com.example.inventario20.databinding.FragmentInventariosBinding
+import com.example.inventario20.ui.UiNotifier
 import java.util.Date
 import java.util.Locale
 import androidx.core.view.isVisible
@@ -90,7 +90,7 @@ class InventariosFragment : Fragment() {
             val id = idInventarioSeleccionado
 
             if(id == null){
-                Toast.makeText(requireContext(), getString(R.string.seleccionar_inventario_para_excel), Toast.LENGTH_SHORT).show()
+                UiNotifier.warning(binding.root, getString(R.string.seleccionar_inventario_para_excel))
                 return@setOnClickListener
             }
 
@@ -112,16 +112,12 @@ class InventariosFragment : Fragment() {
                     val esReabierto = dbHelper.esInventarioReabierto(id)
 
                     if (!esReabierto) {
-                        Toast.makeText(
-                            requireContext(),
-                            getString(R.string.solo_reabiertos),
-                            Toast.LENGTH_LONG
-                        ).show()
+                        UiNotifier.warning(binding.root, getString(R.string.solo_reabiertos))
                         return@setPositiveButton
                     }
 
-                    // 🔥 RESPALDO
-                    val respaldoOk = exportarExcel(id)
+                    // 🔥 RESPALDO (marcar como BACKUP para añadir sufijo)
+                    val respaldoOk = exportarExcel(id, isBackup = true)
 
                     if (respaldoOk) {
 
@@ -129,19 +125,15 @@ class InventariosFragment : Fragment() {
                         val eliminado = dbHelper.eliminarInventarioCompleto(id)
 
                         if (eliminado) {
-                            Toast.makeText(requireContext(), getString(R.string.inventario_eliminado), Toast.LENGTH_SHORT).show()
+                            UiNotifier.info(binding.root, getString(R.string.inventario_eliminado))
                             idInventarioSeleccionado = null
                             cargarInventarios()
                         } else {
-                            Toast.makeText(requireContext(), getString(R.string.error_eliminar_inventario), Toast.LENGTH_SHORT).show()
+                            UiNotifier.error(binding.root, getString(R.string.error_eliminar_inventario))
                         }
 
                     } else {
-                        Toast.makeText(
-                            requireContext(),
-                            getString(R.string.error_respaldo_no_eliminado),
-                            Toast.LENGTH_LONG
-                        ).show()
+                        UiNotifier.error(binding.root, getString(R.string.error_respaldo_no_eliminado))
                     }
                 }
                 .setNegativeButton("Cancelar", null)
@@ -155,7 +147,8 @@ class InventariosFragment : Fragment() {
     }
 
 
-    private fun exportarExcel(inventarioId: Int): Boolean {
+    // Añadido parámetro isBackup: si es true, se agrega el sufijo _BACKUP_ al nombre del archivo.
+    private fun exportarExcel(inventarioId: Int, isBackup: Boolean = false): Boolean {
         return try {
             val dbHelper = DBHelper(requireContext())
             val registros = dbHelper.obtenerRegistrosPorInventarioNombre(inventarioId)
@@ -163,7 +156,7 @@ class InventariosFragment : Fragment() {
             val agrupados = mutableMapOf<String, DBHelper.RegistroAgrupado>()
 
             for (item in registros) {
-                val key = "${item.idproducto}_${item.empresa}_${item.ubicacion}"
+                val key = "${item.idproducto}_${item.empresa}_${item.cliente}_${item.ubicacion}"
 
                 if (!agrupados.containsKey(key)) {
                     agrupados[key] = DBHelper.RegistroAgrupado(
@@ -190,7 +183,7 @@ class InventariosFragment : Fragment() {
             val workbook = XSSFWorkbook()
             val sheet = workbook.createSheet("Inventario_$inventarioId")
 
-            val headers = listOf("Codigo","Producto","Empresa","Ubicacion","Tarimas","Cajas","Unidades","Suelto","Total","Medida")
+            val headers = listOf("Codigo","Producto","Empresa","Proveedor","Ubicacion","Tarimas","Cajas","Unidades","Suelto","Total","Medida")
 
             // --- Estilos ---
             val headerStyle = workbook.createCellStyle() as XSSFCellStyle
@@ -242,13 +235,13 @@ class InventariosFragment : Fragment() {
             productStyle.wrapText = true
             productStyle.alignment = HorizontalAlignment.LEFT
 
-            // Mapear estilos por columna (0..9)
+            // Mapear estilos por columna (0..10)
             val columnStyles = arrayOfNulls<XSSFCellStyle>(headers.size)
             for (i in headers.indices) {
                 columnStyles[i] = when (i) {
                     1 -> productStyle            // Producto
-                    8 -> numericStyle            // Total
-                    in 4..7 -> dataStyle1        // columnas numéricas/texto agrupado
+                    9 -> numericStyle            // Total
+                    in 5..8 -> dataStyle1        // columnas numéricas/texto agrupado
                     else -> dataStyle2
                 }
             }
@@ -283,18 +276,19 @@ class InventariosFragment : Fragment() {
                 applyCell(0, item.idproducto)
                 applyCell(1, item.producto)
                 applyCell(2, item.empresa)
-                applyCell(3, item.ubicacion)
-                applyCell(4, item.tarimas.joinToString(","))
-                applyCell(5, item.cajas.joinToString(","))
-                applyCell(6, item.unidades.joinToString(","))
-                applyCell(7, item.suelto.joinToString(","))
+                applyCell(3, item.cliente)
+                applyCell(4, item.ubicacion)
+                applyCell(5, item.tarimas.joinToString(","))
+                applyCell(6, item.cajas.joinToString(","))
+                applyCell(7, item.unidades.joinToString(","))
+                applyCell(8, item.suelto.joinToString(","))
 
                 // Total como número
-                val totalCell = row.createCell(8)
+                val totalCell = row.createCell(9)
                 totalCell.setCellValue(item.total.toDouble())
-                totalCell.cellStyle = columnStyles[8] ?: numericStyle
+                totalCell.cellStyle = columnStyles[9] ?: numericStyle
 
-                applyCell(9, item.medida)
+                applyCell(10, item.medida)
             }
 
             // Auto-ajustar ancho de columnas (usar after populate)
@@ -307,13 +301,14 @@ class InventariosFragment : Fragment() {
                         0 -> it.idproducto
                         1 -> it.producto
                         2 -> it.empresa
-                        3 -> it.ubicacion
-                        4 -> it.tarimas.joinToString(",")
-                        5 -> it.cajas.joinToString(",")
-                        6 -> it.unidades.joinToString(",")
-                        7 -> it.suelto.joinToString(",")
-                        8 -> java.text.NumberFormat.getIntegerInstance(Locale.getDefault()).format(it.total)
-                        9 -> it.medida
+                        3 -> it.cliente
+                        4 -> it.ubicacion
+                        5 -> it.tarimas.joinToString(",")
+                        6 -> it.cajas.joinToString(",")
+                        7 -> it.unidades.joinToString(",")
+                        8 -> it.suelto.joinToString(",")
+                        9 -> java.text.NumberFormat.getIntegerInstance(Locale.getDefault()).format(it.total)
+                        10 -> it.medida
                         else -> ""
                     }
                     if (cellText.length > maxChars) maxChars = cellText.length
@@ -328,7 +323,12 @@ class InventariosFragment : Fragment() {
             val fecha = obtenerFechaCorta()
             val nombreLimpio = nombreInventario.replace(Regex("[^a-zA-Z0-9_]"), "_")
 
-            val nombreArchivo = "${nombreLimpio}_BACKUP_$fecha"
+            val nombreArchivo = if (isBackup) {
+                "${nombreLimpio}_BACKUP_$fecha"
+            } else {
+                // Nombre sin el sufijo BACKUP cuando el usuario genera el Excel manualmente
+                "${nombreLimpio}_$fecha"
+            }
 
             guardarExcel(nombreArchivo, workbook)
 
@@ -366,9 +366,9 @@ class InventariosFragment : Fragment() {
             outputStream?.close()
             workbook.close()
 
-            Toast.makeText(requireContext(), getString(R.string.excel_guardado_descargas), Toast.LENGTH_LONG).show()
+            UiNotifier.info(binding.root, getString(R.string.excel_guardado_descargas))
         }?: run {
-            Toast.makeText(requireContext(), getString(R.string.error_guardar_excel), Toast.LENGTH_SHORT).show()
+            UiNotifier.error(binding.root, getString(R.string.error_guardar_excel))
         }
     }
 
@@ -389,7 +389,7 @@ class InventariosFragment : Fragment() {
                 reabrirInventario()
             }
             else -> {
-                Toast.makeText(requireContext(), "No hay inventario disponible", Toast.LENGTH_SHORT).show()
+                UiNotifier.warning(binding.root, "No hay inventario disponible")
             }
         }
 
@@ -403,11 +403,7 @@ class InventariosFragment : Fragment() {
         val idActivo = dbHelper.obtenerInventarioActivo()
 
         if (idActivo == null) {
-            Toast.makeText(
-                requireContext(),
-                "No hay inventario activo",
-                Toast.LENGTH_SHORT
-            ).show()
+            UiNotifier.error(binding.root, "No hay inventario activo")
             return
         }
         dbHelper.cerrarInventario(
@@ -429,11 +425,7 @@ class InventariosFragment : Fragment() {
         binding.EstatusTXT.text = getString(R.string.estatus_label)
         binding.CantidadRegTXT.text = getString(R.string.cant_registros_label)
 
-        Toast.makeText(
-            requireContext(),
-            "Inventario cerrado",
-            Toast.LENGTH_SHORT
-        ).show()
+        UiNotifier.info(binding.root, "Inventario cerrado")
 
         cargarInventarios()
         actualizarEstadoBoton()
@@ -470,11 +462,7 @@ class InventariosFragment : Fragment() {
                 val passwordIngresada = etPassword.text.toString()
 
                 if (passwordIngresada != PASSWORD_REABRIR) {
-                    Toast.makeText(
-                        requireContext(),
-                        getString(R.string.contrasena_incorrecta),
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    UiNotifier.error(binding.root, getString(R.string.contrasena_incorrecta))
                     return@setPositiveButton
                 }
 
@@ -482,21 +470,13 @@ class InventariosFragment : Fragment() {
                 val dbHelper = DBHelper(requireContext())
 
                 if (dbHelper.obtenerInventarioActivo() != null) {
-                    Toast.makeText(
-                        requireContext(),
-                        getString(R.string.ya_hay_inventario_activo),
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    UiNotifier.warning(binding.root, getString(R.string.ya_hay_inventario_activo))
                     return@setPositiveButton
                 }
 
                 dbHelper.reabrirInventario(id)
 
-                Toast.makeText(
-                    requireContext(),
-                    getString(R.string.inventario_reabierto),
-                    Toast.LENGTH_SHORT
-                ).show()
+                UiNotifier.info(binding.root, getString(R.string.inventario_reabierto))
                 cargarInventarios()
                 actualizarEstadoBoton()
                 // Asegurar estado correcto del botón Borrar tras reabrir

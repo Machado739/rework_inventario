@@ -7,11 +7,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.inventario20.DBHelper
 import com.example.inventario20.databinding.FragmentProductosBinding
+import com.example.inventario20.ui.UiNotifier
 import kotlin.collections.addAll
 import kotlin.text.clear
 
@@ -117,7 +117,7 @@ class ProductosFragment : Fragment() {
             // Cambiar color del item seleccionado
             (listView.adapter as CodigoAdapter).setSelectedIndex(position)
 
-            Toast.makeText(requireContext(), "Seleccionaste: ${seleccionado.producto}", Toast.LENGTH_SHORT).show()
+            UiNotifier.info(binding.root, "Seleccionaste: ${seleccionado.producto}")
         }
 
         // evento agregar producto
@@ -129,7 +129,7 @@ class ProductosFragment : Fragment() {
 
             // Validaciones
             if(codigoProducto.isBlank() || nombreProducto.isBlank() || unidadProducto.isBlank()) {
-                Toast.makeText(requireContext(), "Por favor, completa todos los campos", Toast.LENGTH_SHORT).show()
+                UiNotifier.warning(binding.root, "Por favor, completa todos los campos")
                 return@setOnClickListener
             }
 
@@ -141,9 +141,9 @@ class ProductosFragment : Fragment() {
                     binding.productoCodigoEDTXT.text.clear()
                     binding.productoNombreEDTXT.text.clear()
                     binding.productoUnidadEDTXT.text.clear()
-                    Toast.makeText(requireContext(), "Producto actualizado", Toast.LENGTH_SHORT).show()
+                    UiNotifier.info(binding.root, "Producto actualizado")
                 } else {
-                    Toast.makeText(requireContext(), "Error al actualizar", Toast.LENGTH_SHORT).show()
+                    UiNotifier.error(binding.root, "Error al actualizar")
                 }
                 productoSeleccionado = null // Limpiamos selección
                 actualizarListaProductos()
@@ -151,18 +151,14 @@ class ProductosFragment : Fragment() {
             } else {
 
                 if(codigosOriginal.any { it.idproducto == codigoProducto }) {
-                    Toast.makeText(requireContext(), "El código de producto ya existe", Toast.LENGTH_SHORT).show()
+                    UiNotifier.warning(binding.root, "El código de producto ya existe")
                     return@setOnClickListener
                 }
 
                 // Insertar en la base de datos
                 val exito = dbHelper.insertarCodigo(codigoProducto, nombreProducto, unidadProducto)
                 if (exito > 0) {
-                    Toast.makeText(
-                        requireContext(),
-                        "Producto agregado correctamente",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    UiNotifier.info(binding.root, "Producto agregado correctamente")
                     // Limpiar campos
                     binding.productoCodigoEDTXT.text.clear()
                     binding.productoNombreEDTXT.text.clear()
@@ -171,11 +167,7 @@ class ProductosFragment : Fragment() {
                     actualizarListaProductos()
                     quitarFiltro()
                 } else {
-                    Toast.makeText(
-                        requireContext(),
-                        "Error al agregar el producto",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    UiNotifier.error(binding.root, "Error al agregar el producto")
                 }
             }
 
@@ -192,11 +184,11 @@ class ProductosFragment : Fragment() {
                     // Eliminar de la base de datos
                     val exito = dbHelper.eliminarCodigo(seleccionado.idproducto)
                     if (exito > 0) {
-                        Toast.makeText(requireContext(), "Producto eliminado", Toast.LENGTH_SHORT).show()
+                        UiNotifier.info(binding.root, "Producto eliminado")
                         // Actualizar lista
                         actualizarListaProductos()
                     } else {
-                        Toast.makeText(requireContext(), "Error al eliminar", Toast.LENGTH_SHORT).show()
+                        UiNotifier.error(binding.root, "Error al eliminar")
                     }
                     dialog.dismiss()
                 }

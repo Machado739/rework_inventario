@@ -11,12 +11,12 @@ import android.widget.ArrayAdapter
 import android.widget.Spinner
 import android.widget.TableRow
 import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.inventario20.DBHelper
 import com.example.inventario20.databinding.FragmentExportacionBinding
+import com.example.inventario20.ui.UiNotifier
 
 class ExportacionFragment : Fragment() {
 
@@ -99,11 +99,7 @@ class ExportacionFragment : Fragment() {
         Log.d("EXPORTACION", "Tabla: $tabla | Filas: ${datos.size}")
 
         if (datos.isEmpty()) {
-            Toast.makeText(
-                requireContext(),
-                "La tabla $tabla no tiene datos",
-                Toast.LENGTH_SHORT
-            ).show()
+            UiNotifier.info(binding.root, "La tabla $tabla no tiene datos")
             return
         }
 

@@ -43,15 +43,23 @@
             android:id="@+id/regEmpresaTXT"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1.3"
+            android:layout_weight="1.1"
             android:text="Empresa"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/regProveedorTXT"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.1"
+            android:text="Proveedor"
             android:textSize="13sp" />
 
         <TextView
             android:id="@+id/regUbicacionTXT"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_weight="1.2"
             android:text="Ubicacion"
             android:textSize="13sp" />
 

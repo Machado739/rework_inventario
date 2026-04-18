@@ -7,11 +7,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.inventario20.DBHelper
 import com.example.inventario20.databinding.FragmentUbicacionesBinding
+import com.example.inventario20.ui.UiNotifier
 
 class UbicacionesFragment : Fragment() {
 
@@ -133,7 +133,7 @@ class UbicacionesFragment : Fragment() {
 
                 // Cambiar color del item seleccionado
                 (listView.adapter as UbicacionesAdapter).setSelectedIndex(position)
-                Toast.makeText(requireContext(), "Seleccionaste: ${seleccionado.ubicacion}", Toast.LENGTH_SHORT).show()
+                UiNotifier.info(binding.root, "Seleccionaste: ${seleccionado.ubicacion}")
         }
 
 
@@ -145,13 +145,13 @@ class UbicacionesFragment : Fragment() {
 
             // 1️⃣ Validar empresa
             if (empresaSeleccionada == 0) {
-                Toast.makeText(requireContext(), "Seleccione una empresa", Toast.LENGTH_SHORT).show()
+                UiNotifier.warning(binding.root, "Seleccione una empresa")
                 return@setOnClickListener
             }
 
             // 2️⃣ Validar ubicación
             if (ubicacion.isEmpty()) {
-                Toast.makeText(requireContext(), "Ingrese una ubicación", Toast.LENGTH_SHORT).show()
+                UiNotifier.warning(binding.root, "Ingrese una ubicación")
                 return@setOnClickListener
             }
 
@@ -163,11 +163,7 @@ class UbicacionesFragment : Fragment() {
             }
 
             if (existe) {
-                Toast.makeText(
-                    requireContext(),
-                    "La ubicación ya existe para la empresa seleccionada",
-                    Toast.LENGTH_SHORT
-                ).show()
+                UiNotifier.warning(binding.root, "La ubicación ya existe para la empresa seleccionada")
                 return@setOnClickListener
             }
 
@@ -176,11 +172,7 @@ class UbicacionesFragment : Fragment() {
 
                 // 🔒 BLOQUEAR CAMBIO DE EMPRESA
                 if (empresaSeleccionada != empresaOriginalUbicacion) {
-                    Toast.makeText(
-                        requireContext(),
-                        "No puedes cambiar la empresa de una ubicación existente",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    UiNotifier.warning(binding.root, "No puedes cambiar la empresa de una ubicación existente")
                     return@setOnClickListener
                 }
 
@@ -191,9 +183,9 @@ class UbicacionesFragment : Fragment() {
                 )
 
                 if (rows > 0) {
-                    Toast.makeText(requireContext(), "Ubicación actualizada correctamente", Toast.LENGTH_SHORT).show()
+                    UiNotifier.info(binding.root, "Ubicación actualizada correctamente")
                 } else {
-                    Toast.makeText(requireContext(), "Error al actualizar la ubicación", Toast.LENGTH_SHORT).show()
+                    UiNotifier.error(binding.root, "Error al actualizar la ubicación")
                 }
 
                 // Limpiar selección
@@ -211,12 +203,12 @@ class UbicacionesFragment : Fragment() {
             val exito = dbHelper.insertarUbicacion(ubicacion, empresaSeleccionada)
 
             if (exito > 0) {
-                Toast.makeText(requireContext(), "Ubicación guardada correctamente", Toast.LENGTH_SHORT).show()
+                UiNotifier.info(binding.root, "Ubicación guardada correctamente")
                 binding.ubicacionEDTXT.text.clear()
                 actualizarListaUbicaiones()
                 filtrarPorEmpresa(empresaSeleccionada)
             } else {
-                Toast.makeText(requireContext(), "Error al guardar la ubicación", Toast.LENGTH_SHORT).show()
+                UiNotifier.error(binding.root, "Error al guardar la ubicación")
             }
         }
 
@@ -233,10 +225,10 @@ class UbicacionesFragment : Fragment() {
                 .setPositiveButton("Sí") { dialog, which ->
                     val rows = dbHelper.eliminarUbicacion(seleccionado.idubicacion)
                     if (rows > 0) {
-                        Toast.makeText(requireContext(), "Ubicación eliminada", Toast.LENGTH_SHORT).show()
+                        UiNotifier.info(binding.root, "Ubicación eliminada")
                         actualizarListaUbicaiones()
                     } else {
-                        Toast.makeText(requireContext(), "Error al eliminar", Toast.LENGTH_SHORT).show()
+                        UiNotifier.error(binding.root, "Error al eliminar")
                     }
                 }
                 .setNegativeButton("No", null)

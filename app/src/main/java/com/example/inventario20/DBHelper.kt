@@ -733,6 +733,7 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
             put("idubicacion", registro.idubicacion)
             put("idproducto", registro.idproducto)
             put("idempresas", registro.idempresas)
+            put("idcliente", registro.idcliente)
         }
         return db.update(
             "Registros",

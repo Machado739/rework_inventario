@@ -3,38 +3,41 @@
 
     <item
         android:id="@+id/nav_home"
-        android:title="Inicio"
+        android:title="@string/menu_home"
         android:icon="@drawable/ic_home" />
 
     <item
-        android:title="Configuración">
+        android:title="@string/menu_configuracion">
         <menu>
             <item
                 android:id="@+id/nav_productos"
-                android:title="Productos"
+                android:title="@string/menu_productos"
                 android:icon="@drawable/ic_products" />
             <item
                 android:id="@+id/nav_ubicaciones"
-                android:title="Ubicaciones"
+                android:title="@string/menu_ubicaciones"
                 android:icon="@drawable/ic_map" />
             <item
                 android:id="@+id/nav_inventarios"
-                android:title="Inventarios"
+                android:title="@string/menu_inventarios"
                 android:icon="@drawable/ic_book" />
             <item
                 android:id="@+id/nav_exportacion"
-                android:title="Exportacion"
-                android:icon="@drawable/ic_export" />
+                android:title="@string/menu_exportacion"
+                android:icon="@drawable/ic_export"
+                android:visible="false" />
             <item
                 android:id="@+id/nav_configuracion"
-                android:title="Confirguración"
-                android:icon="@drawable/ic_configuration_manage" />
+                android:title="@string/menu_configuracion"
+                android:icon="@drawable/ic_configuration_manage"
+                android:visible="false" />
 
         </menu>
     </item>
 
     <item
         android:id="@+id/nav_logout"
-        android:title="Cerrar Sesión"
-        android:icon="@drawable/logout_67" />
+        android:title="@string/menu_logout"
+        android:icon="@drawable/logout_67"
+        android:visible="false"/>
 </menu>

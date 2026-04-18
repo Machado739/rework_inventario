@@ -19,6 +19,7 @@ class InventarioRegistroAdapter(
 
         val total: TextView = view.findViewById(R.id.regTotalTXT)
         val empresa: TextView = view.findViewById(R.id.regEmpresaTXT)
+        val proveedor: TextView = view.findViewById(R.id.regProveedorTXT)
         val ubicacion: TextView = view.findViewById(R.id.regUbicacionTXT)
         val numeros: TextView = view.findViewById(R.id.regNumerosTXT)
     }
@@ -37,6 +38,7 @@ class InventarioRegistroAdapter(
         holder.codigo.text = item.producto
         holder.total.text = item.total
         holder.empresa.text = item.empresa
+        holder.proveedor.text = item.cliente
         holder.ubicacion.text = item.ubicacion
         holder.numeros.text = "T:${item.tarimas} C:${item.cajas} P:${item.unidades} S:${item.suelto}"
         holder.itemView.setOnClickListener { onClick(item) }

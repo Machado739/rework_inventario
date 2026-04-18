@@ -15,7 +15,6 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -235,6 +234,23 @@ class HomeFragment : Fragment() {
                     UiNotifier.info(
                         binding.root,
                         "No hay registro seleccionado para actualizar."
+                    )
+                    return@setOnClickListener
+                }
+
+                // Verificar si hay cambios en los datos
+                if (registro.idproducto == codigoProducto &&
+                    registro.tarimas == tarimas &&
+                    registro.cajas == cajas &&
+                    registro.unidades == piezas &&
+                    registro.suelto == suelto &&
+                    registro.total == total &&
+                    registro.idempresas == idEmpresa &&
+                    registro.idcliente == idProveedor &&
+                    registro.idubicacion == idUbicacion) {
+                    UiNotifier.info(
+                        binding.root,
+                        "No se detectaron cambios, actualización no realizada."
                     )
                     return@setOnClickListener
                 }

@@ -6,13 +6,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.inventario20.DBHelper
 import com.example.inventario20.R
 import com.example.inventario20.databinding.FragmentHomeBinding
 import com.example.inventario20.databinding.FragmentIniciarInventarioBinding
+import com.example.inventario20.ui.UiNotifier
 import com.example.inventario20.ui.home.HomeFragment
 import com.example.inventario20.ui.home.HomeViewModel
 import java.text.SimpleDateFormat
@@ -44,12 +44,7 @@ class IniciarInventarioFragment : Fragment() {
 
             // 1️⃣ Validar nombre vacío
             if (nombreInventario.isEmpty()) {
-                Toast.makeText(
-                    requireContext(),
-                    "Por favor escribe un nombre para el inventario",
-                    Toast.LENGTH_SHORT
-                ).show()
-                binding.NombreInvEDTXT.requestFocus()
+                UiNotifier.fieldError(binding.NombreInvEDTXT, "Por favor escribe un nombre para el inventario")
                 return@setOnClickListener
             }
 
@@ -83,11 +78,7 @@ class IniciarInventarioFragment : Fragment() {
                             .replace(R.id.fragment_container_main, HomeFragment())
                             .commit()
                     } else {
-                        Toast.makeText(
-                            requireContext(),
-                            "Error al crear inventario",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        UiNotifier.error(binding.root, "Error al crear inventario")
                     }
                 }
                 .setNegativeButton("Cancelar", null)
@@ -103,5 +94,3 @@ class IniciarInventarioFragment : Fragment() {
     }
 
 }
-
-

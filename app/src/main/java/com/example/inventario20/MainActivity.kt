@@ -7,7 +7,6 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -15,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.example.inventario20.databinding.ActivityMainBinding
+import com.example.inventario20.ui.UiNotifier
 import com.example.inventario20.ui.configuracion.ConfiguracionFragment
 import com.example.inventario20.ui.exportacion.ExportacionFragment
 import com.example.inventario20.ui.home.HomeFragment
@@ -184,7 +184,7 @@ class MainActivity : AppCompatActivity(),
 
             R.id.clear_DB -> {
                 limpiarBaseDeDatos()
-                Toast.makeText(this, "Base de datos reiniciada", Toast.LENGTH_SHORT).show()
+                UiNotifier.info(binding.root, "Base de datos reiniciada")
                 irAFragmentInicial()
                 true
             }
@@ -203,7 +203,7 @@ class MainActivity : AppCompatActivity(),
             val dbFile = getDatabasePath(dbName)
 
             if (!dbFile.exists()) {
-                Toast.makeText(this, "Base de datos no encontrada", Toast.LENGTH_SHORT).show()
+                UiNotifier.error(binding.root, "Base de datos no encontrada")
                 return
             }
 
@@ -224,10 +224,10 @@ class MainActivity : AppCompatActivity(),
                 }
             }
 
-            Toast.makeText(this, "BD exportada a Descargas", Toast.LENGTH_LONG).show()
+            UiNotifier.info(binding.root, "BD exportada a Descargas")
 
         } catch (e: Exception) {
-            Toast.makeText(this, "Error al exportar BD", Toast.LENGTH_SHORT).show()
+            UiNotifier.error(binding.root, "Error al exportar BD")
         }
     }
 

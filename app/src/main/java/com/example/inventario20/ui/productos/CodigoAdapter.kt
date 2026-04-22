@@ -1,6 +1,7 @@
 package com.example.inventario20.ui.productos
 
 import android.content.Context
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -33,6 +34,13 @@ class CodigoAdapter(
         tvCodigo.text = item.idproducto
         tvProducto.text = item.producto
         tvMedida.text = item.medida
+
+        // 🔧 Resaltar visualmente el item seleccionado
+        if (position == selectedIndex) {
+            view.setBackgroundColor(Color.LTGRAY)
+        } else {
+            view.setBackgroundColor(Color.TRANSPARENT)
+        }
 
         return view
     }

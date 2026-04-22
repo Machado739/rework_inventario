@@ -178,14 +178,16 @@ class MainActivity : AppCompatActivity(),
 
         return when (item.itemId) {
             R.id.exportation_db -> {
-                exportDatabase()
+           //     exportDatabase()
                 true
             }
 
             R.id.clear_DB -> {
-                limpiarBaseDeDatos()
-                UiNotifier.info(binding.root, "Base de datos reiniciada")
-                irAFragmentInicial()
+           //     limpiarBaseDeDatos()
+           //     UiNotifier.info(binding.root, "Base de datos reiniciada")
+
+           //    irAFragmentInicial()
+
                 true
             }
 

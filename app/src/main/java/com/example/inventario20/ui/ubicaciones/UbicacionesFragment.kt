@@ -92,6 +92,14 @@ class UbicacionesFragment : Fragment() {
             boton.setBackgroundColor(Color.BLUE)
             empresaSeleccionada = idEmpresa
             botonSeleccionado = boton
+
+            // 🔧 Si hay ubicación seleccionada de otra empresa, limpiar
+            if (ubicacionSeleccionada != null && ubicacionSeleccionada!!.idempresas != idEmpresa) {
+                ubicacionSeleccionada = null
+                binding.ubicacionEDTXT.text.clear()
+                (listView.adapter as UbicacionesAdapter).setSelectedIndex(-1)
+            }
+
             filtrarPorEmpresa(idEmpresa)
         }
 
@@ -227,6 +235,10 @@ class UbicacionesFragment : Fragment() {
                     if (rows > 0) {
                         UiNotifier.info(binding.root, "Ubicación eliminada")
                         actualizarListaUbicaiones()
+                        // 🔧 Reaplicar filtro si hay uno activo
+                        if (botonSeleccionado != null) {
+                            filtrarPorEmpresa(empresaSeleccionada)
+                        }
                     } else {
                         UiNotifier.error(binding.root, "Error al eliminar")
                     }

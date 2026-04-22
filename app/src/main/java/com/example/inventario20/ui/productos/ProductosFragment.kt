@@ -76,6 +76,16 @@ class ProductosFragment : Fragment() {
             codigosFiltrados.addAll(codigosOriginal)
             adapter.notifyDataSetChanged()
         }
+        // 🔧 Función auxiliar para obtener el prefijo del botón seleccionado
+        fun obtenerPrefijoBotonesSeleccionado(): String? {
+            return when (botonSeleccionado) {
+                productoCoastalBTN -> "CF"
+                productoSakuraBTN -> "RF"
+                productoMuranakaBTN -> "MK"
+                else -> null
+            }
+        }
+        
         // manejar seleccion de botones
         fun manejarSeleccion(boton: Button, prefix: String) {
 
@@ -174,7 +184,7 @@ class ProductosFragment : Fragment() {
         }
 
         listView.setOnItemLongClickListener { parent, view, position, id ->
-            val seleccionado = codigosOriginal[position]
+            val seleccionado = codigosFiltrados[position]
 
             // Mostrar diálogo de confirmación
             androidx.appcompat.app.AlertDialog.Builder(requireContext())
@@ -187,6 +197,11 @@ class ProductosFragment : Fragment() {
                         UiNotifier.info(binding.root, "Producto eliminado")
                         // Actualizar lista
                         actualizarListaProductos()
+                        // 🔧 Reaplicar filtro si hay uno activo
+                        val prefijo = obtenerPrefijoBotonesSeleccionado()
+                        if (prefijo != null) {
+                            filtrarPorPrefix(prefijo)
+                        }
                     } else {
                         UiNotifier.error(binding.root, "Error al eliminar")
                     }

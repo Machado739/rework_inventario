@@ -4,8 +4,17 @@ plugins {
 }
 
 android {
+
+    applicationVariants.all {
+        outputs.all{
+            val outputs = this as com.android.build.gradle.internal.api.BaseVariantOutputImpl
+            outputs.outputFileName  = "Inventario20-${outputs.baseName}.apk"
+        }
+    }
     namespace = "com.example.inventario20"
     compileSdk = 36
+
+
 
     defaultConfig {
         applicationId = "com.example.inventario20"

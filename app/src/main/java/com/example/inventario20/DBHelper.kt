@@ -1,8 +1,10 @@
 package com.example.inventario20
+
 import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import android.util.Log
 
 
 class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, "MiBaseDatos.db", null, 3) {
@@ -247,7 +249,7 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
         }
         return db.insert("Ubicaciones", null, values)
     }
-/*
+
     //Metodo para insertar una nueva empresa
     fun insertarEmpresa(empresa: String): Long {
         val db = this.writableDatabase
@@ -256,7 +258,6 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
         }
         return db.insert("Empresas", null, values)
     }
-    */
 
     //Metodo para insertar un nuevo codigo
     fun insertarCodigo(idproducto: String, producto: String, medida: String): Long {
@@ -268,7 +269,7 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
         }
         return db.insert("Codigos", null, values)
     }
-/*
+
     //Metodo para insertar un nuevo cliente
     fun insertarCliente(cliente: String): Long {
         val db = this.writableDatabase
@@ -277,7 +278,6 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
         }
         return db.insert("Cliente", null, values)
     }
-*/
 
 
     // Metodo para cerrar un inventario
@@ -380,7 +380,8 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
                 val idubicacion = getInt(getColumnIndexOrThrow("idubicacion"))
                 val idproducto = getString(getColumnIndexOrThrow("idproducto"))
                 val idcliente = getInt(getColumnIndexOrThrow("idcliente"))
-                val idempresa = getInt(getColumnIndexOrThrow("idempresa"))
+                // La columna en la tabla se llama 'idempresas' (plural)
+                val idempresas = getInt(getColumnIndexOrThrow("idempresas"))
                 registros.add(
                     Registro(
                         idregistro,
@@ -393,7 +394,7 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
                         idubicacion,
                         idproducto,
                         idcliente,
-                        idempresa
+                        idempresas
                     )
                 )
             }
@@ -642,7 +643,8 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
                 val idubicacion = getInt(getColumnIndexOrThrow("idubicacion"))
                 val idproducto = getString(getColumnIndexOrThrow("idproducto"))
                 val idcliente = getInt(getColumnIndexOrThrow("idcliente"))
-                val idempresa = getInt(getColumnIndexOrThrow("idempresa"))
+                // Corregir nombre de columna a 'idempresas'
+                val idempresas = getInt(getColumnIndexOrThrow("idempresas"))
                 registros.add(
                     Registro(
                         idregistro,
@@ -655,7 +657,7 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
                         idubicacion,
                         idproducto,
                         idcliente,
-                        idempresa
+                        idempresas
                     )
                 )
             }
@@ -1197,8 +1199,70 @@ class DBHelper(context: Context) : SQLiteOpenHelper(context.applicationContext, 
         return esReabierto
     }
 
+    // 🔧 VALIDACIONES DE INTEGRIDAD REFERENCIAL
+    fun validarIntegridadReferencial(): List<String> {
+        val errores = mutableListOf<String>()
+        val db = readableDatabase
 
+        try {
+            // Verificar registros sin ubicación válida
+            val cursor1 = db.rawQuery("""
+                SELECT COUNT(*) FROM Registros r 
+                LEFT JOIN Ubicaciones u ON r.idubicacion = u.idubicacion 
+                WHERE u.idubicacion IS NULL
+            """, null)
+            if (cursor1.moveToFirst() && cursor1.getInt(0) > 0) {
+                errores.add("Existen ${cursor1.getInt(0)} registros con ubicaciones inválidas")
+            }
+            cursor1.close()
 
+            // Verificar registros sin producto válido
+            val cursor2 = db.rawQuery("""
+                SELECT COUNT(*) FROM Registros r 
+                LEFT JOIN Codigos c ON r.idproducto = c.idproducto 
+                WHERE c.idproducto IS NULL
+            """, null)
+            if (cursor2.moveToFirst() && cursor2.getInt(0) > 0) {
+                errores.add("Existen ${cursor2.getInt(0)} registros con productos inválidos")
+            }
+            cursor2.close()
 
+            // Verificar ubicaciones sin empresa válida
+            val cursor3 = db.rawQuery("""
+                SELECT COUNT(*) FROM Ubicaciones u 
+                LEFT JOIN Empresas e ON u.idempresas = e.idempresas 
+                WHERE e.idempresas IS NULL
+            """, null)
+            if (cursor3.moveToFirst() && cursor3.getInt(0) > 0) {
+                errores.add("Existen ${cursor3.getInt(0)} ubicaciones con empresas inválidas")
+            }
+            cursor3.close()
 
+        } catch (e: Exception) {
+            errores.add("Error al validar integridad: ${e.message}")
+            Log.e("DBHelper", "Error en validación de integridad", e)
+        } finally {
+            db.close()
+        }
+
+        return errores
+    }
+
+    // 🔧 MÉTODO CON MANEJO DE ERRORES PARA OPERACIONES CRÍTICAS
+    fun ejecutarOperacionSegura(operacion: () -> Any?): ResultadoOperacion {
+        return try {
+            val resultado = operacion()
+            ResultadoOperacion.Exito(resultado)
+        } catch (e: Exception) {
+            Log.e("DBHelper", "Error en operación de BD", e)
+            ResultadoOperacion.Error(e.message ?: "Error desconocido")
+        }
+    }
+
+    // Clase sellada para resultados de operaciones
+    sealed class ResultadoOperacion {
+        data class Exito(val data: Any?) : ResultadoOperacion()
+        data class Error(val mensaje: String) : ResultadoOperacion()
+    }
 }
+

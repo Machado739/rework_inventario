@@ -31,7 +31,7 @@
                 android:layout_width="72dp"
                 android:layout_height="72dp"
                 android:contentDescription="@string/inventario"
-                android:src="@drawable/pichon" />
+                android:src="@drawable/ic_inventario" />
 
             <!-- Título -->
             <TextView

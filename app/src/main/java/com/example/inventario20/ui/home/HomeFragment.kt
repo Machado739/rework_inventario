@@ -154,10 +154,12 @@ class HomeFragment : Fragment() {
                 UiNotifier.info(binding.root, "Por favor, ingrese un código de producto.")
                 return@setOnClickListener
             }
+
             if (idEmpresa == -1) {
                 UiNotifier.info(binding.root, "Por favor, seleccione una empresa.")
                 return@setOnClickListener
             }
+
             if (idProveedor == -1) {
                 UiNotifier.info(binding.root, "Por favor, seleccione un proveedor.")
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Inventario20</string>
+    <string name="app_name">Inventarios Mensuales</string>
 
     <string name="ocultar_registros">Ocultar Registros</string>
     <string name="ver_registros">Ver Registros</string>
@@ -46,7 +46,7 @@
 
     <string name="nav_header_desc">Gestiona tus inventarios y registros</string>
     <string name="nav_header_title">Inventario20</string>
-    <string name="nav_header_subtitle">Administra tu almacén</string>
+    <string name="nav_header_subtitle">Inventario Mensual</string>
 
     <string name="sin_nombre">Sin nombre</string>
 
